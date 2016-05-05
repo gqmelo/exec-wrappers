@@ -25,10 +25,6 @@ run_activate_scripts() {
 _THIS_DIR=$(get_dirname "$_SCRIPT_LOCATION")
 CONDA_ENV_PATH=$(get_dirname "$_THIS_DIR")
 
-echo "_THIS_DIR: $_THIS_DIR"
-echo "CONDA_ENV_PATH: $CONDA_ENV_PATH"
-echo "Executing "$@""
-
 export PATH="$_THIS_DIR:$PATH"
 run_activate_scripts "${CONDA_ENV_PATH}/etc/conda/activate.d" &&
 "$@"
