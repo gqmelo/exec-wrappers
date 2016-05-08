@@ -1,0 +1,6 @@
+include LICENSE
+
+include README.rst
+
+include tox.ini
+include setup.py

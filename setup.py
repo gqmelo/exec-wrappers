@@ -9,12 +9,12 @@ else:
     from distutils.core import setup
 
 setup(
-    name="conda-wrappers",
+    name="exec-wrappers",
     version='0.1',
     author="Guilherme Quentel Melo",
     author_email="gqmelo@gmail.com",
-    url="https://github.com/gqmelo/conda-wrappers",
-    license="BSD",
+    url="https://github.com/gqmelo/exec-wrappers",
+    license="MIT",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
@@ -25,9 +25,9 @@ setup(
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
     ],
-    description="wrappers for running commands inside a conda environment",
+    description="wrappers for running commands that need some initial setup",
     long_description=open('README.rst').read(),
-    packages=['conda_wrappers'],
+    packages=['exec_wrappers'],
     scripts=glob('bin/*'),
-    install_requires=['conda'],
+    install_requires=[],
 )

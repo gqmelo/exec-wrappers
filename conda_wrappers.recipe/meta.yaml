@@ -15,5 +15,5 @@ requirements:
     - python
 
 about:
-  home: https://github.com/conda/conda-build
+  home:
   license: BSD
