@@ -1,0 +1,15 @@
+#!/bin/bash
+
+run_activate_scripts() {
+    _CONDA_D="$1"
+    if [[ -d "$_CONDA_D" ]]; then
+        for f in $(find "$_CONDA_D" -name "*.sh"); do echo "Sourcing $f"; source $f; done
+    fi
+}
+
+export CONDA_DEFAULT_ENV="@CONDA_ENV_DIR@"
+export CONDA_ENV_PATH="$CONDA_DEFAULT_ENV"
+
+export PATH="$CONDA_DEFAULT_ENV/bin:$PATH"
+run_activate_scripts "$CONDA_DEFAULT_ENV/etc/conda/activate.d" &&
+"$@"

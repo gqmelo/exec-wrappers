@@ -28,6 +28,7 @@ setup(
     description="wrappers for running commands that need some initial setup",
     long_description=open('README.rst').read(),
     packages=['exec_wrappers'],
+    include_package_data=True,
     scripts=glob('bin/*'),
     install_requires=[],
 )
