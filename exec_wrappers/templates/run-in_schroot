@@ -1,0 +1,4 @@
+#!/bin/bash
+
+CHROOT="@CHROOT@"
+schroot -p -r -c $CHROOT -- "$@"
