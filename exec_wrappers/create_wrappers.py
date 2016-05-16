@@ -2,6 +2,7 @@ import glob
 
 import os
 import stat
+import sys
 
 
 def main():
@@ -61,7 +62,8 @@ def create_conda_wrappers(files_to_wrap, conda_env_dir, destination_dir):
 
     this_dir = os.path.dirname(__file__)
 
-    run_in_template_filename = os.path.join(this_dir, 'templates', 'run-in_conda')
+    run_in_template_filename = os.path.join(this_dir, 'templates', 'run-in_conda' +
+                                            get_wrapper_extension())
     _create_wrappers(
         files_to_wrap,
         destination_dir,
@@ -73,7 +75,8 @@ def create_conda_wrappers(files_to_wrap, conda_env_dir, destination_dir):
 def create_schroot_wrappers(files_to_wrap, schroot_name, destination_dir):
     os.path.exists(destination_dir) or os.makedirs(destination_dir)
 
-    run_in_template_filename = os.path.join(get_templates_dir(), 'run-in_schroot')
+    run_in_template_filename = os.path.join(get_templates_dir(), 'run-in_schroot' +
+                                            get_wrapper_extension())
     _create_wrappers(
         files_to_wrap,
         destination_dir,
@@ -87,20 +90,27 @@ def get_templates_dir():
     return os.path.join(this_dir, 'templates')
 
 
+def get_wrapper_extension():
+    if sys.platform == 'win32':
+        return '.bat'
+    else:
+        return ''
+
+
 def _create_wrappers(files_to_wrap, destination_dir, run_in_template_filename, template_func):
     os.path.exists(destination_dir) or os.makedirs(destination_dir)
 
     with open(run_in_template_filename, 'r') as f:
         content = template_func(f.read())
 
-    run_in_filename = os.path.join(destination_dir, 'run-in')
+    run_in_filename = os.path.join(destination_dir, 'run-in' + get_wrapper_extension())
     with open(run_in_filename, 'w') as f:
         f.write(content)
     os.chmod(run_in_filename, os.stat(run_in_filename).st_mode | stat.S_IXUSR)
 
     for filename in files_to_wrap:
         basename = os.path.basename(filename)
-        if basename == 'run-in':
+        if basename == 'run-in' + get_wrapper_extension():
             continue
         destination_filename = os.path.join(destination_dir, basename)
         content = WRAPPER_TEMPLATE.format(run_in_file=run_in_filename,
