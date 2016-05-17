@@ -52,10 +52,6 @@ def _main(raw_args):
         parser.print_usage()
         exit(1)
 
-WRAPPER_TEMPLATE = '''#!/bin/sh
-{run_in_file} {wrapped_file} "$@"
-'''
-
 
 def create_conda_wrappers(files_to_wrap, conda_env_dir, destination_dir):
     os.path.exists(destination_dir) or os.makedirs(destination_dir)
@@ -112,8 +108,8 @@ def _create_wrappers(files_to_wrap, destination_dir, run_in_template_filename, t
         basename = os.path.basename(filename)
         if basename == 'run-in' + get_wrapper_extension():
             continue
-        destination_filename = os.path.join(destination_dir, basename)
-        content = WRAPPER_TEMPLATE.format(run_in_file=run_in_filename,
+        destination_filename = get_wrapper_full_path(destination_dir, basename)
+        content = get_wrapper_template().format(run_in_file=run_in_filename,
                                          wrapped_file=filename)
         with open(destination_filename, 'w') as f:
             f.write(content)
@@ -121,10 +117,34 @@ def _create_wrappers(files_to_wrap, destination_dir, run_in_template_filename, t
         os.chmod(destination_filename, os.stat(destination_filename).st_mode | stat.S_IXUSR)
 
 
+def get_wrapper_full_path(destination_dir, basename):
+    if sys.platform == 'win32':
+        basename = os.path.splitext(basename)[0]
+    return os.path.join(destination_dir, basename + get_wrapper_extension())
+
+
+def get_wrapper_template():
+    if sys.platform == 'win32':
+        return '''{run_in_file} {wrapped_file} %*'''
+    else:
+        return '''#!/bin/sh
+{run_in_file} {wrapped_file} "$@"
+'''
+
+
 def list_executable_files(directory):
     return sorted([
         f
         for f
         in glob.glob(directory + '/*')
-        if not os.path.isdir(f) and os.access(f, os.X_OK)
+        if is_executable(f)
     ])
+
+
+def is_executable(filename):
+    if os.path.isdir(filename):
+        return False
+    if sys.platform == 'win32':
+        return os.path.splitext(filename)[1] in ['.bat', '.exe']
+    else:
+        return os.access(filename, os.X_OK)

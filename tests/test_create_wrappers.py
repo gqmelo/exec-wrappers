@@ -1,5 +1,4 @@
 import os
-import py
 import pytest
 
 import stat
@@ -54,8 +53,6 @@ def test_create_conda_wrappers(tmpdir):
 
     _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
 
-    assert wrappers_dir.join('run-in').exists()
-
 
 @pytest.mark.skipif(sys.platform == 'win32', reason='No schroot on Windows')
 def test_create_schroot_wrappers(tmpdir):
@@ -63,6 +60,17 @@ def test_create_schroot_wrappers(tmpdir):
     bin_dir = tmpdir.join('bin')
     create_schroot_wrappers([str(bin_dir.join('python')), str(bin_dir.join('gcc'))],
                           'ubuntu-14.04',
+                          str(wrappers_dir))
+
+    _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
+
+
+@pytest.mark.skipif(sys.platform != 'win32', reason='Extension handling only on Windows')
+def test_omit_original_extension(tmpdir):
+    wrappers_dir = tmpdir.join('wrappers')
+    bin_dir = tmpdir.join('bin')
+    create_conda_wrappers([str(bin_dir.join('python.exe')), str(bin_dir.join('gcc.bat'))],
+                          'miniconda/envs/test',
                           str(wrappers_dir))
 
     _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
