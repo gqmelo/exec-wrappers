@@ -37,12 +37,13 @@ For example, the conda wrappers are much faster than doing an activate and execu
 
 .. code-block:: bash
 
-    $ time eval "source activate test 2> /dev/null; python --version"
+    $ echo 'source activate test 2> /dev/null; "$@"' > /tmp/activate-and-run && chmod a+x /tmp/activate-and-run
+    $ time /tmp/activate-and-run python --version
     Python 2.7.11 :: Continuum Analytics, Inc.
     
-    real    0m0.366s
-    user    0m0.292s
-    sys 0m0.048s
+    real    0m0.354s
+    user    0m0.288s
+    sys 0m0.040s
 
 - Using python wrapper created by ``exec-wrappers``:
 
