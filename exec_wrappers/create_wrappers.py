@@ -125,7 +125,8 @@ def get_wrapper_full_path(destination_dir, basename):
 
 def get_wrapper_template():
     if sys.platform == 'win32':
-        return '''{run_in_file} {wrapped_file} %*'''
+        return '''@echo off
+{run_in_file} {wrapped_file} %*'''
     else:
         return '''#!/bin/sh
 {run_in_file} {wrapped_file} "$@"
