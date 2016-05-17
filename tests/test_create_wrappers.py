@@ -75,6 +75,7 @@ WRAPPER_TYPE_AND_ARGS = [
 if sys.platform.startswith('linux'):
     WRAPPER_TYPE_AND_ARGS.extend([
         ('schroot', (['--schroot-name', 'ubuntu-14.04'])),
+        ('schroot', (['--schroot-session', 'ubuntu-14.04-session'])),
     ])
 
 
@@ -87,10 +88,10 @@ def test_create_wrappers_from_main(wrapper_type, extra_args, tmpdir):
     _create_executable_file(bin_dir.join('gcc'))
 
     create_wrappers._main([
-        '-t', wrapper_type,
-        '--bin-dir', str(bin_dir),
-        '--dest-dir', str(wrappers_dir),
-    ] + extra_args)
+                              '-t', wrapper_type,
+                              '--bin-dir', str(bin_dir),
+                              '--dest-dir', str(wrappers_dir),
+                          ] + extra_args)
 
     _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
 
@@ -100,10 +101,10 @@ def test_create_only_given_wrappers_from_main(wrapper_type, extra_args, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
 
     create_wrappers._main([
-        '-t', wrapper_type,
-        '--files-to-wrap', 'python:gcc',
-        '--dest-dir', str(wrappers_dir),
-    ] + extra_args)
+                              '-t', wrapper_type,
+                              '--files-to-wrap', 'python:gcc',
+                              '--dest-dir', str(wrappers_dir),
+                          ] + extra_args)
 
     _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
 
