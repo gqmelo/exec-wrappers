@@ -10,27 +10,75 @@ exec-wrappers
     :target: https://ci.appveyor.com/project/gqmelo/exec-wrappers/branch/master
     :alt: See Build Status on AppVeyor
 
-A tool to create wrappers around executable files
+A command line tool to create wrappers around executable files
+
+Rationale
+---------
 
 ``exec-wrappers`` is useful whenever you need a single executable file, but have to do some setup
 before executing it.
 
+If you develop using some kind of environment isolation like ``conda``, ``chroot``, ``schroot``,
+``virtualenv`` you probably wanted to configure a GUI application like an IDE to use the executables
+available inside these environments.
+
+But you normally have to create a script that do some setup/activation step and then run the command
+but creating such a script for each executable is tedious.
+
+``exec-wrappers`` helps automating that as it detects executable files and create a wrapper for each
+of them. It also already provides some wrappers for common tools.
+
+Also, as the wrappers are intended to be used non-interactively, they are normally much simpler than
+the interactive counterpart.
+
+For example, the conda wrappers are much faster than doing an activate and executing the command:
+
+- Regular activate:
+
+.. code-block:: bash
+
+    $ time eval "source activate test 2> /dev/null; python --version"
+    Python 2.7.11 :: Continuum Analytics, Inc.
+    
+    real    0m0.366s
+    user    0m0.292s
+    sys 0m0.048s
+
+- Using python wrapper created by ``exec-wrappers``:
+
+.. code-block:: bash
+
+    $ time /tmp/conda_wrappers/python --version
+    Python 2.7.11 :: Continuum Analytics, Inc.
+    
+    real    0m0.003s
+    user    0m0.000s
+    sys 0m0.000s
+
+Having a low overhead is very important if you are executing the command non-interactively.
 
 Features
 --------
 
-* TODO
+- automatically detect executables in a given directory
+- wrappers written in plain shell and batch scripts
+- low overhead (as low as possible)
+- built-in wrappers for common tools
 
 
 Requirements
 ------------
 
-* TODO
+``python`` is the only dependency to create wrappers.
+To properly use the generated wrappers you need the tool used by the wrapper (conda, schroot, etc.).
 
 
 Installation
 ------------
 
+.. code-block::
+
+    $ python setup.py install
 
 Usage
 -----
@@ -41,7 +89,7 @@ Creating `conda`_ wrappers:
 
 .. code-block:: bash
 
-    $ create_wrappers  -t conda -b ~/miniconda/envs/test/bin -d /tmp/conda_wrappers
+    $ create-wrappers  -t conda -b ~/miniconda/envs/test/bin -d /tmp/conda_wrappers
     --conda-env-dir ~/miniconda/envs/test
 
 This will create in ``/tmp/conda_wrappers`` a wrapper for each executable found in
@@ -77,7 +125,7 @@ existing schroot properly configured and the right mount points.
 License
 -------
 
-Distributed under the terms of the `MIT`_ license, "exec-wrappers" is free and open source software
+Distributed under the terms of the `MIT`_ license, ``exec-wrappers`` is free and open source software
 
 
 Issues
