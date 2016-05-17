@@ -37,7 +37,7 @@ Usage
 
 There are some built-in templates to create wrappers.
 
-Creating conda wrappers:
+Creating `conda`_ wrappers:
 
 .. code-block:: bash
 
@@ -84,3 +84,7 @@ Issues
 ------
 
 If you encounter any problems, please `file an issue`_ along with a detailed description.
+
+.. _`MIT`: http://opensource.org/licenses/MIT
+.. _`file an issue`: https://github.com/gqmelo/exec-wrappers/issues
+.. _`conda`: http://conda.pydata.org/miniconda.html
