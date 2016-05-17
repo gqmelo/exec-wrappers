@@ -4,6 +4,7 @@ import pytest
 import stat
 import sys
 
+from exec_wrappers import create_wrappers
 from exec_wrappers.create_wrappers import list_executable_files, create_conda_wrappers, \
     create_schroot_wrappers, get_templates_dir, get_wrapper_extension
 
@@ -44,23 +45,65 @@ def _create_non_executable_file(filepath):
     return filepath
 
 
-def test_create_conda_wrappers(tmpdir):
+WRAPPER_CREATOR_AND_ARGS = [
+    (create_conda_wrappers, {'conda_env_dir': 'miniconda/envs/test'}),
+]
+if sys.platform.startswith('linux'):
+    WRAPPER_CREATOR_AND_ARGS.extend([
+        (create_schroot_wrappers, {'schroot_name': 'ubuntu-14.04'}),
+    ])
+
+
+@pytest.mark.parametrize(('wrapper_creator', 'extra_kwargs'), WRAPPER_CREATOR_AND_ARGS)
+def test_create_wrappers(wrapper_creator, extra_kwargs, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
-    create_conda_wrappers([str(bin_dir.join('python')), str(bin_dir.join('gcc'))],
-                          'miniconda/envs/test',
-                          str(wrappers_dir))
+
+    kwargs = {
+        'files_to_wrap': [str(bin_dir.join('python')), str(bin_dir.join('gcc'))],
+        'destination_dir': str(wrappers_dir),
+    }
+    kwargs.update(extra_kwargs)
+    wrapper_creator(**kwargs)
 
     _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
 
 
-@pytest.mark.skipif(sys.platform == 'win32', reason='No schroot on Windows')
-def test_create_schroot_wrappers(tmpdir):
+WRAPPER_TYPE_AND_ARGS = [
+    ('conda', (['--conda-env-dir', 'miniconda/envs/test'])),
+]
+if sys.platform.startswith('linux'):
+    WRAPPER_TYPE_AND_ARGS.extend([
+        ('schroot', (['--schroot-name', 'ubuntu-14.04'])),
+    ])
+
+
+@pytest.mark.parametrize(('wrapper_type', 'extra_args'), WRAPPER_TYPE_AND_ARGS)
+def test_create_wrappers_from_main(wrapper_type, extra_args, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
-    create_schroot_wrappers([str(bin_dir.join('python')), str(bin_dir.join('gcc'))],
-                          'ubuntu-14.04',
-                          str(wrappers_dir))
+    bin_dir.mkdir()
+    _create_executable_file(bin_dir.join('python'))
+    _create_executable_file(bin_dir.join('gcc'))
+
+    create_wrappers._main([
+        '-t', wrapper_type,
+        '--bin-dir', str(bin_dir),
+        '--dest-dir', str(wrappers_dir),
+    ] + extra_args)
+
+    _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
+
+
+@pytest.mark.parametrize(('wrapper_type', 'extra_args'), WRAPPER_TYPE_AND_ARGS)
+def test_create_only_given_wrappers_from_main(wrapper_type, extra_args, tmpdir):
+    wrappers_dir = tmpdir.join('wrappers')
+
+    create_wrappers._main([
+        '-t', wrapper_type,
+        '--files-to-wrap', 'python:gcc',
+        '--dest-dir', str(wrappers_dir),
+    ] + extra_args)
 
     _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
 
@@ -84,8 +127,8 @@ def test_dont_create_wrapper_when_file_has_same_name(tmpdir):
     _create_executable_file(bin_dir.join('run-in'))
 
     create_conda_wrappers([str(bin_dir.join('python')), str(bin_dir.join('gcc'))],
-                          'miniconda/envs/test',
-                          str(wrappers_dir))
+                          str(wrappers_dir),
+                          'miniconda/envs/test')
 
     with open(os.path.join(get_templates_dir(), 'run-in_conda' + get_wrapper_extension())) as f:
         expected_run_in_content = f.read().replace('@CONDA_ENV_DIR@', 'miniconda/envs/test')
