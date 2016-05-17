@@ -130,7 +130,7 @@ def test_dont_create_wrapper_when_file_has_same_name(tmpdir):
                           str(wrappers_dir),
                           'miniconda/envs/test')
 
-    with open(os.path.join(get_templates_dir(), 'run-in_conda' + get_wrapper_extension())) as f:
+    with open(os.path.join(get_templates_dir(), 'conda', 'run-in' + get_wrapper_extension())) as f:
         expected_run_in_content = f.read().replace('@CONDA_ENV_DIR@', 'miniconda/envs/test')
 
     assert wrappers_dir.join('run-in' + get_wrapper_extension()).read() == expected_run_in_content

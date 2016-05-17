@@ -65,7 +65,7 @@ def create_conda_wrappers(files_to_wrap, destination_dir, conda_env_dir):
 
     this_dir = os.path.dirname(__file__)
 
-    run_in_template_filename = os.path.join(this_dir, 'templates', 'run-in_conda' +
+    run_in_template_filename = os.path.join(this_dir, 'templates', 'conda', 'run-in' +
                                             get_wrapper_extension())
     _create_wrappers(
         files_to_wrap,
@@ -78,7 +78,7 @@ def create_conda_wrappers(files_to_wrap, destination_dir, conda_env_dir):
 def create_schroot_wrappers(files_to_wrap, destination_dir, schroot_name):
     os.path.exists(destination_dir) or os.makedirs(destination_dir)
 
-    run_in_template_filename = os.path.join(get_templates_dir(), 'run-in_schroot' +
+    run_in_template_filename = os.path.join(get_templates_dir(), 'schroot', 'run-in' +
                                             get_wrapper_extension())
     _create_wrappers(
         files_to_wrap,
