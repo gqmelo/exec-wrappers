@@ -13,7 +13,7 @@ def _main(raw_args):
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--type', type=str, required=True,
-                        help='The type of the wrapper. Possible values: conda, schroot')
+                        help='The type of the wrapper. Possible values: conda, virtualenv, schroot')
     parser.add_argument('-b', '--bin-dir', type=str, required=False,
                         help='Directory with the original executable files. If --files-to-wrap is'
                              'not given, it will try to detect all executable files in this'
@@ -34,6 +34,11 @@ def _main(raw_args):
     conda_group = parser.add_argument_group('conda')
     conda_group.add_argument('--conda-env-dir', type=str,
                              help='The path to the conda environment. E.g. ~/miniconda/envs/foo')
+
+    conda_group = parser.add_argument_group('virtualenv')
+    conda_group.add_argument('--virtual-env-dir', type=str,
+                             help='The path to the virtualenv directory')
+
     schroot_group = parser.add_argument_group('schroot')
     schroot_name_group = schroot_group.add_mutually_exclusive_group()
     schroot_name_group.add_argument('--schroot-name', type=str,
@@ -41,13 +46,13 @@ def _main(raw_args):
     schroot_name_group.add_argument('--schroot-session', type=str,
                                     help='Name of an existing schroot session')
     schroot_group.add_argument('--schroot-options', type=str,
-                               help='Extra options to be passed to the schroot command. E.g.'
+                               help='Extra options to be passed to the schroot command. E.g. '
                                     '--schroot-options="-p -d $HOME"')
 
     args = parser.parse_args(raw_args)
 
     wrapper_type = args.type
-    if wrapper_type not in ['conda', 'schroot']:
+    if wrapper_type not in ['conda', 'virtualenv', 'schroot']:
         print('Invalid wrapper type: {}'.format(wrapper_type))
         parser.print_usage()
 
@@ -68,6 +73,12 @@ def _main(raw_args):
         create_schroot_wrappers(files_to_wrap, args.dest_dir, schroot_name=args.schroot_name,
                                 schroot_session=args.schroot_session,
                                 schroot_options=args.schroot_options)
+    elif wrapper_type == 'virtualenv':
+        if not args.virtual_env_dir:
+            print('Missing virtualenv argument: --virtual-env-dir')
+            parser.print_usage()
+            exit(1)
+        create_virtualenv_wrappers(files_to_wrap, args.dest_dir, args.virtual_env_dir)
     else:
         print('Invalid wrapper type: {}'.format(wrapper_type))
         parser.print_usage()
@@ -99,7 +110,22 @@ def create_conda_wrappers(files_to_wrap, destination_dir, conda_env_dir):
         files_to_wrap,
         destination_dir,
         run_in_template_filename,
-        lambda content: content.replace('@CONDA_ENV_DIR@', conda_env_dir),
+        lambda content: content.replace('__CONDA_ENV_DIR__', conda_env_dir),
+    )
+
+
+def create_virtualenv_wrappers(files_to_wrap, destination_dir, virtual_env_dir):
+    os.path.exists(destination_dir) or os.makedirs(destination_dir)
+
+    this_dir = os.path.dirname(__file__)
+
+    run_in_template_filename = os.path.join(this_dir, 'templates', 'virtualenv', 'run-in' +
+                                            get_wrapper_extension())
+    _create_wrappers(
+        files_to_wrap,
+        destination_dir,
+        run_in_template_filename,
+        lambda content: content.replace('__VIRTUAL_ENV__', virtual_env_dir),
     )
 
 
@@ -119,9 +145,9 @@ def create_schroot_wrappers(files_to_wrap, destination_dir, schroot_name=None,
 
     def create_content(content):
         if schroot_session:
-            return content.replace('@CHROOT@', '{}-r -c {}'.format(schroot_options, schroot_session))
+            return content.replace('__CHROOT_OPTIONS__', '{}-r -c {}'.format(schroot_options, schroot_session))
         else:
-            return content.replace('@CHROOT@', '{}-c {}'.format(schroot_options, schroot_name))
+            return content.replace('__CHROOT_OPTIONS__', '{}-c {}'.format(schroot_options, schroot_name))
 
     _create_wrappers(
         files_to_wrap,

@@ -4,7 +4,7 @@
 
 @setlocal
 
-@set "CONDA_DEFAULT_ENV=@CONDA_ENV_DIR@"
+@set "CONDA_DEFAULT_ENV=__CONDA_ENV_DIR__"
 @set PATH="%CONDA_DEFAULT_ENV%";"%CONDA_DEFAULT_ENV%\Scripts";"%CONDA_DEFAULT_ENV%\Library\bin";%PATH%
 
 @REM Run any activate scripts

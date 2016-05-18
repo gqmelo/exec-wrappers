@@ -72,6 +72,7 @@ def test_wrappers_creators(wrapper_creator, extra_kwargs, tmpdir):
 WRAPPER_TYPE_ARGS_CONTENT = [
     # The third element a string that should be present in the run-in script
     ('conda', (['--conda-env-dir', 'miniconda/envs/test']), 'miniconda/envs/test'),
+    ('virtualenv', (['--virtual-env-dir', 'virtualenv/test-env']), 'virtualenv/test-env'),
 ]
 if sys.platform.startswith('linux'):
     WRAPPER_TYPE_ARGS_CONTENT.extend([
@@ -221,7 +222,7 @@ def test_dont_create_wrapper_when_file_has_same_name(tmpdir):
                           'miniconda/envs/test')
 
     with open(os.path.join(get_templates_dir(), 'conda', 'run-in' + get_wrapper_extension())) as f:
-        expected_run_in_content = f.read().replace('@CONDA_ENV_DIR@', 'miniconda/envs/test')
+        expected_run_in_content = f.read().replace('__CONDA_ENV_DIR__', 'miniconda/envs/test')
 
     assert wrappers_dir.join('run-in' + get_wrapper_extension()).read() == expected_run_in_content
 

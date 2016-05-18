@@ -7,7 +7,7 @@ run_activate_scripts() {
     fi
 }
 
-export CONDA_DEFAULT_ENV="@CONDA_ENV_DIR@"
+export CONDA_DEFAULT_ENV="__CONDA_ENV_DIR__"
 export CONDA_ENV_PATH="$CONDA_DEFAULT_ENV"
 
 export PATH="$CONDA_DEFAULT_ENV/bin:$PATH"
