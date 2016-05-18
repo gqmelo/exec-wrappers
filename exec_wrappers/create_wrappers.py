@@ -6,7 +6,6 @@ import sys
 
 
 def main():
-    import sys
     _main(sys.argv[1:])
 
 
@@ -16,10 +15,19 @@ def _main(raw_args):
     parser.add_argument('-t', '--type', type=str, required=True,
                         help='The type of the wrapper. Possible values: conda, schroot')
     parser.add_argument('-b', '--bin-dir', type=str, required=False,
-                        help='Directory with the original executable files')
+                        help='Directory with the original executable files. If --files-to-wrap is'
+                             'not given, it will try to detect all executable files in this'
+                             'directory and create a wrapper for each of them. By default the'
+                             'wrapper will execute the absolute path.')
+    parser.add_argument('--use-basename', action='store_true', required=False,
+                        help='If given, the wrappers created with --bin-dir will execute the'
+                        'executable basename instead of the absolute path. Make sure that the'
+                        'wrappers behave appropriately as this depends on the PATH variable.')
     parser.add_argument('-f', '--files-to-wrap', type=str, required=False,
                         help='List of files separated by colon (:). If given only wrappers for '
-                             'files listed here will be created')
+                             'files listed here will be created. By default the wrapper will execute'
+                             'the exact path that is passed to --files-to-wrap. If --bin-dir is'
+                             'given, it will be used as a prefix to --files-to-wrap')
     parser.add_argument('-d', '--dest-dir', type=str, required=True,
                         help='Directory where the wrappers will be created')
 
@@ -40,10 +48,7 @@ def _main(raw_args):
         print('Invalid wrapper type: {}'.format(wrapper_type))
         parser.print_usage()
 
-    if args.files_to_wrap:
-        files_to_wrap = args.files_to_wrap.split(':')
-    else:
-        files_to_wrap = list_executable_files(args.bin_dir)
+    files_to_wrap = get_files_to_wrap(args.bin_dir, args.files_to_wrap, args.use_basename)
 
     if wrapper_type == 'conda':
         if not args.conda_env_dir:
@@ -63,6 +68,20 @@ def _main(raw_args):
         print('Invalid wrapper type: {}'.format(wrapper_type))
         parser.print_usage()
         exit(1)
+
+
+def get_files_to_wrap(bin_dir=None, specified_files_to_wrap=None, use_basename=False):
+    files_to_wrap = []
+    if specified_files_to_wrap:
+        files_to_wrap = specified_files_to_wrap.split(':')
+        if bin_dir:
+            files_to_wrap = [os.path.join(bin_dir, f) for f in files_to_wrap]
+    else:
+        files_to_wrap = list_executable_files(bin_dir)
+        if use_basename:
+            files_to_wrap = [os.path.basename(f) for f in files_to_wrap]
+
+    return files_to_wrap
 
 
 def create_conda_wrappers(files_to_wrap, destination_dir, conda_env_dir):

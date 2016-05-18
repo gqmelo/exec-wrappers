@@ -55,7 +55,7 @@ if sys.platform.startswith('linux'):
 
 
 @pytest.mark.parametrize(('wrapper_creator', 'extra_kwargs'), WRAPPER_CREATOR_AND_ARGS)
-def test_create_wrappers(wrapper_creator, extra_kwargs, tmpdir):
+def test_wrappers_creators(wrapper_creator, extra_kwargs, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
 
@@ -80,7 +80,7 @@ if sys.platform.startswith('linux'):
 
 
 @pytest.mark.parametrize(('wrapper_type', 'extra_args'), WRAPPER_TYPE_AND_ARGS)
-def test_create_wrappers_from_main(wrapper_type, extra_args, tmpdir):
+def test_create_automatic_wrappers(wrapper_type, extra_args, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
     bin_dir.mkdir()
@@ -97,7 +97,44 @@ def test_create_wrappers_from_main(wrapper_type, extra_args, tmpdir):
 
 
 @pytest.mark.parametrize(('wrapper_type', 'extra_args'), WRAPPER_TYPE_AND_ARGS)
-def test_create_only_given_wrappers_from_main(wrapper_type, extra_args, tmpdir):
+def test_automatic_wrappers_should_use_absolute_path_by_default(wrapper_type, extra_args, tmpdir):
+    wrappers_dir = tmpdir.join('wrappers')
+    bin_dir = tmpdir.join('bin')
+    bin_dir.mkdir()
+    python_bin = _create_executable_file(bin_dir.join('python'))
+
+    create_wrappers._main([
+                              '-t', wrapper_type,
+                              '--bin-dir', str(bin_dir),
+                              '--dest-dir', str(wrappers_dir),
+                          ] + extra_args)
+
+    wrapper = wrappers_dir.join('python' + get_wrapper_extension())
+    # The wrapped command should be absolute
+    assert str(python_bin) in wrapper.read()
+
+
+@pytest.mark.parametrize(('wrapper_type', 'extra_args'), WRAPPER_TYPE_AND_ARGS)
+def test_automatic_wrappers_should_use_basename_when_asked(wrapper_type, extra_args, tmpdir):
+    wrappers_dir = tmpdir.join('wrappers')
+    bin_dir = tmpdir.join('bin')
+    bin_dir.mkdir()
+    _create_executable_file(bin_dir.join('python'))
+
+    create_wrappers._main([
+                              '-t', wrapper_type,
+                              '--bin-dir', str(bin_dir),
+                              '--dest-dir', str(wrappers_dir),
+                              '--use-basename',
+                          ] + extra_args)
+
+    wrapper = wrappers_dir.join('python' + get_wrapper_extension())
+    # The wrapped command should be the basename only
+    assert ' python ' in wrapper.read()
+
+
+@pytest.mark.parametrize(('wrapper_type', 'extra_args'), WRAPPER_TYPE_AND_ARGS)
+def test_create_only_specified_wrappers(wrapper_type, extra_args, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
 
     create_wrappers._main([
@@ -107,6 +144,40 @@ def test_create_only_given_wrappers_from_main(wrapper_type, extra_args, tmpdir):
                           ] + extra_args)
 
     _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
+
+
+@pytest.mark.parametrize(('wrapper_type', 'extra_args'), WRAPPER_TYPE_AND_ARGS)
+def test_specified_wrappers_should_use_relative_path_by_default(wrapper_type, extra_args, tmpdir):
+    wrappers_dir = tmpdir.join('wrappers')
+
+    create_wrappers._main([
+                              '-t', wrapper_type,
+                              '--files-to-wrap', 'python:gcc',
+                              '--dest-dir', str(wrappers_dir),
+                          ] + extra_args)
+
+    wrapper = wrappers_dir.join('python' + get_wrapper_extension())
+    # The wrapped command should be exactly as we passed to command line
+    assert ' python ' in wrapper.read()
+
+
+@pytest.mark.parametrize(('wrapper_type', 'extra_args'), WRAPPER_TYPE_AND_ARGS)
+def test_specified_wrappers_should_use_absolute_path_when_given_bin_dir(wrapper_type, extra_args, tmpdir):
+    wrappers_dir = tmpdir.join('wrappers')
+    bin_dir = tmpdir.join('bin')
+    bin_dir.mkdir()
+    python_bin = _create_executable_file(bin_dir.join('python'))
+
+    create_wrappers._main([
+                              '-t', wrapper_type,
+                              '--bin-dir', str(bin_dir),
+                              '--files-to-wrap', 'python:gcc',
+                              '--dest-dir', str(wrappers_dir),
+                          ] + extra_args)
+
+    wrapper = wrappers_dir.join('python' + get_wrapper_extension())
+    # The wrapped command should be absolute
+    assert str(python_bin) in wrapper.read()
 
 
 @pytest.mark.skipif(sys.platform != 'win32', reason='Extension handling only on Windows')
