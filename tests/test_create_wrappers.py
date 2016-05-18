@@ -168,9 +168,6 @@ def test_create_only_specified_wrappers(wrapper_type, extra_args, contents, tmpd
 @pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
 def test_specified_wrappers_should_use_relative_path_by_default(wrapper_type, extra_args, contents, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
-    bin_dir = tmpdir.join('bin')
-    bin_dir.mkdir()
-    python_bin = _create_executable_file(bin_dir.join('python'))
 
     create_wrappers._main([
                               '-t', wrapper_type,
@@ -180,15 +177,13 @@ def test_specified_wrappers_should_use_relative_path_by_default(wrapper_type, ex
 
     wrapper = wrappers_dir.join('python' + get_wrapper_extension())
     # The wrapped command should be exactly as we passed to command line
-    assert ' {} '.format(python_bin.basename) in wrapper.read()
+    assert ' python ' in wrapper.read()
 
 
 @pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
 def test_specified_wrappers_should_use_absolute_path_when_given_bin_dir(wrapper_type, extra_args, contents, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
-    bin_dir.mkdir()
-    python_bin = _create_executable_file(bin_dir.join('python'))
 
     create_wrappers._main([
                               '-t', wrapper_type,
@@ -199,7 +194,7 @@ def test_specified_wrappers_should_use_absolute_path_when_given_bin_dir(wrapper_
 
     wrapper = wrappers_dir.join('python' + get_wrapper_extension())
     # The wrapped command should be absolute
-    assert str(python_bin) in wrapper.read()
+    assert str(bin_dir.join('python')) in wrapper.read()
 
 
 @pytest.mark.skipif(sys.platform != 'win32', reason='Extension handling only on Windows')
