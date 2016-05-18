@@ -114,8 +114,8 @@ def test_omit_original_extension(tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
     create_conda_wrappers([str(bin_dir.join('python.exe')), str(bin_dir.join('gcc.bat'))],
-                          'miniconda/envs/test',
-                          str(wrappers_dir))
+                          str(wrappers_dir),
+                          'miniconda/envs/test')
 
     _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
 
