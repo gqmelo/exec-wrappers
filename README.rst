@@ -90,7 +90,7 @@ Creating `conda`_ wrappers:
 
 .. code-block:: bash
 
-    $ create-wrappers  -t conda -b ~/miniconda/envs/test/bin -d /tmp/conda_wrappers
+    $ create-wrappers  -t conda --bin-dir ~/miniconda/envs/test/bin --dest-dir /tmp/conda_wrappers
     --conda-env-dir ~/miniconda/envs/test
 
 This will create in ``/tmp/conda_wrappers`` a wrapper for each executable found in
@@ -116,7 +116,8 @@ It is also possible to chain different wrappers:
 
 .. code-block:: bash
 
-    $ create-wrappers -b /tmp/conda_wrappers -d /tmp/schroot_wrappers --schroot-name centos5-session -t schroot
+    $ create-wrappers  -t schroot --bin-dir /tmp/conda_wrappers --dest-dir /tmp/schroot_wrappers
+    --schroot-name centos5
 
 This will create wrappers that will enter the specified schroot and run the conda wrapper, which
 will activate the environment and execute the given command. Of course you need to have an
