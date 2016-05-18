@@ -21,8 +21,8 @@ def _main(raw_args):
                              'wrapper will execute the absolute path.')
     parser.add_argument('--use-basename', action='store_true', required=False,
                         help='If given, the wrappers created with --bin-dir will execute the'
-                        'executable basename instead of the absolute path. Make sure that the'
-                        'wrappers behave appropriately as this depends on the PATH variable.')
+                             'executable basename instead of the absolute path. Make sure that the'
+                             'wrappers behave appropriately as this depends on the PATH variable.')
     parser.add_argument('-f', '--files-to-wrap', type=str, required=False,
                         help='List of files separated by colon (:). If given only wrappers for '
                              'files listed here will be created. By default the wrapper will execute'
@@ -40,6 +40,9 @@ def _main(raw_args):
                                     help='Name of an existing schroot')
     schroot_name_group.add_argument('--schroot-session', type=str,
                                     help='Name of an existing schroot session')
+    schroot_group.add_argument('--schroot-options', type=str,
+                               help='Extra options to be passed to the schroot command. E.g.'
+                                    '--schroot-options="-p -d $HOME"')
 
     args = parser.parse_args(raw_args)
 
@@ -63,7 +66,8 @@ def _main(raw_args):
             parser.print_usage()
             exit(1)
         create_schroot_wrappers(files_to_wrap, args.dest_dir, schroot_name=args.schroot_name,
-                                schroot_session=args.schroot_session)
+                                schroot_session=args.schroot_session,
+                                schroot_options=args.schroot_options)
     else:
         print('Invalid wrapper type: {}'.format(wrapper_type))
         parser.print_usage()
@@ -100,19 +104,24 @@ def create_conda_wrappers(files_to_wrap, destination_dir, conda_env_dir):
 
 
 def create_schroot_wrappers(files_to_wrap, destination_dir, schroot_name=None,
-                            schroot_session=None):
+                            schroot_session=None, schroot_options=None):
     assert schroot_name or schroot_session
+    if schroot_options:
+        schroot_options = schroot_options + ' '
+    else:
+        schroot_options = ''
 
     os.path.exists(destination_dir) or os.makedirs(destination_dir)
 
     run_in_template_filename = os.path.join(get_templates_dir(), 'schroot', 'run-in' +
                                             get_wrapper_extension())
 
+
     def create_content(content):
         if schroot_session:
-            return content.replace('@CHROOT@', '-r -c {}'.format(schroot_session))
+            return content.replace('@CHROOT@', '{}-r -c {}'.format(schroot_options, schroot_session))
         else:
-            return content.replace('@CHROOT@', '-c {}'.format(schroot_name))
+            return content.replace('@CHROOT@', '{}-c {}'.format(schroot_options, schroot_name))
 
     _create_wrappers(
         files_to_wrap,

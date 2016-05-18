@@ -69,18 +69,32 @@ def test_wrappers_creators(wrapper_creator, extra_kwargs, tmpdir):
     _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
 
 
-WRAPPER_TYPE_AND_ARGS = [
-    ('conda', (['--conda-env-dir', 'miniconda/envs/test'])),
+WRAPPER_TYPE_ARGS_CONTENT = [
+    # The third element a string that should be present in the run-in script
+    ('conda', (['--conda-env-dir', 'miniconda/envs/test']), 'miniconda/envs/test'),
 ]
 if sys.platform.startswith('linux'):
-    WRAPPER_TYPE_AND_ARGS.extend([
-        ('schroot', (['--schroot-name', 'ubuntu-14.04'])),
-        ('schroot', (['--schroot-session', 'ubuntu-14.04-session'])),
+    WRAPPER_TYPE_ARGS_CONTENT.extend([
+        (
+            'schroot',
+            (['--schroot-name', 'ubuntu-14.04']),
+            'schroot -c ubuntu-14.04 -- '
+        ),
+        (
+            'schroot',
+            (['--schroot-name', 'ubuntu-14.04', '--schroot-options', '-p -d /tmp']),
+            'schroot -p -d /tmp -c ubuntu-14.04 -- '
+        ),
+        (
+            'schroot',
+            (['--schroot-session', 'ubuntu-14.04-session']),
+            'schroot -r -c ubuntu-14.04-session -- '
+        ),
     ])
 
 
-@pytest.mark.parametrize(('wrapper_type', 'extra_args'), WRAPPER_TYPE_AND_ARGS)
-def test_create_automatic_wrappers(wrapper_type, extra_args, tmpdir):
+@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
+def test_create_automatic_wrappers(wrapper_type, extra_args, contents, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
     bin_dir.mkdir()
@@ -95,9 +109,13 @@ def test_create_automatic_wrappers(wrapper_type, extra_args, tmpdir):
 
     _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
 
+    wrapper = wrappers_dir.join('run-in' + get_wrapper_extension())
+    # The wrapped command should be absolute
+    assert contents in wrapper.read()
 
-@pytest.mark.parametrize(('wrapper_type', 'extra_args'), WRAPPER_TYPE_AND_ARGS)
-def test_automatic_wrappers_should_use_absolute_path_by_default(wrapper_type, extra_args, tmpdir):
+
+@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
+def test_automatic_wrappers_should_use_absolute_path_by_default(wrapper_type, extra_args, contents, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
     bin_dir.mkdir()
@@ -114,8 +132,8 @@ def test_automatic_wrappers_should_use_absolute_path_by_default(wrapper_type, ex
     assert str(python_bin) in wrapper.read()
 
 
-@pytest.mark.parametrize(('wrapper_type', 'extra_args'), WRAPPER_TYPE_AND_ARGS)
-def test_automatic_wrappers_should_use_basename_when_asked(wrapper_type, extra_args, tmpdir):
+@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
+def test_automatic_wrappers_should_use_basename_when_asked(wrapper_type, extra_args, contents, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
     bin_dir.mkdir()
@@ -133,8 +151,8 @@ def test_automatic_wrappers_should_use_basename_when_asked(wrapper_type, extra_a
     assert ' python ' in wrapper.read()
 
 
-@pytest.mark.parametrize(('wrapper_type', 'extra_args'), WRAPPER_TYPE_AND_ARGS)
-def test_create_only_specified_wrappers(wrapper_type, extra_args, tmpdir):
+@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
+def test_create_only_specified_wrappers(wrapper_type, extra_args, contents, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
 
     create_wrappers._main([
@@ -146,8 +164,8 @@ def test_create_only_specified_wrappers(wrapper_type, extra_args, tmpdir):
     _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
 
 
-@pytest.mark.parametrize(('wrapper_type', 'extra_args'), WRAPPER_TYPE_AND_ARGS)
-def test_specified_wrappers_should_use_relative_path_by_default(wrapper_type, extra_args, tmpdir):
+@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
+def test_specified_wrappers_should_use_relative_path_by_default(wrapper_type, extra_args, contents, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
 
     create_wrappers._main([
@@ -161,8 +179,8 @@ def test_specified_wrappers_should_use_relative_path_by_default(wrapper_type, ex
     assert ' python ' in wrapper.read()
 
 
-@pytest.mark.parametrize(('wrapper_type', 'extra_args'), WRAPPER_TYPE_AND_ARGS)
-def test_specified_wrappers_should_use_absolute_path_when_given_bin_dir(wrapper_type, extra_args, tmpdir):
+@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
+def test_specified_wrappers_should_use_absolute_path_when_given_bin_dir(wrapper_type, extra_args, contents, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
     bin_dir.mkdir()
