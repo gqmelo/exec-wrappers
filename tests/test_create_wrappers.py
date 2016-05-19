@@ -240,8 +240,8 @@ def test_create_custom_wrappers(tmpdir):
 
     python_wrapper = str(wrappers_dir.join('python' + get_wrapper_extension()))
     import subprocess
-    python_ouput = subprocess.check_output([python_wrapper, '--version']).strip('\r\n')
-    assert python_ouput == 'python --version'
+    python_output = str(subprocess.check_output([python_wrapper, '--version']).decode())
+    assert python_output.strip('\r\n') == 'python --version'
 
 
 def _check_wrappers(wrappers_dir, basenames):
