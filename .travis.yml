@@ -1,5 +1,3 @@
-# Config file for automatic testing at travis-ci.org
-
 sudo: false
 language: python
 python:
@@ -13,9 +11,20 @@ install:
   - pip install tox
   - "TOX_ENV=${TRAVIS_PYTHON_VERSION/[0-9].[0-9]/py${TRAVIS_PYTHON_VERSION/.}}"
 script: tox -e $TOX_ENV
-
 before_cache:
   - rm -rf $HOME/.cache/pip/log
 cache:
   directories:
-    - $HOME/.cache/pip
+  - "$HOME/.cache/pip"
+deploy:
+  provider: pypi
+  server: https://testpypi.python.org/pypi
+  user: gqmelo
+  password:
+    secure: KoUMEG6rxzSGvPv/53H1epz9ScGt54L+Ylq2bTb8PcXyU6YPI7k6He2RnYdKfQ/OGS/lgoJIEq9DlNTLNy1s5zRR0CBMvyKGkiskjS5RRTDy0+/lr9dyNyvCf8f4chSPFQs6x1QCxelfNzlJNBxq3zYm30Dg45ix+TAft9E0nm3Ah/zLkDDHQt8saFPLcOqoSRhDkjhkYCg6HLW7J7lOrWtg9gFwuSSxxl5k+r44PEOaf9Jwy28SatADtz/RjP/3b9a4QivGH0q9954n5DI5hrIoFfld+8FRIsxEScS1OLyZKQG0RP5g2p1qGJF28XuN/KmT53tE6l0aywkRKf9IsrQGswPdMo7ZdCmP34m9jfy6PnFNVEg+2zLTHlIR9yqpLq/uHaNOf5aaYlwlmN60VybP0n3lSy6wzH8xXPe7tqH4Ox4lkI/D9z1n1yXZFqcpftjltOTcUGcg5WyerWhUMrnAFfEvcaZihg4BCXcMyaYwtB9hXrgisPMPo2fCP3JYcFCTAOpFTZWCkx7+udfqctQNRYsHKAOARQO3qNg4tzfW7NJ5b7+gHl7+AKgW6Y9bFcAjlmDVOeHvYLsY0UJWfwnuO1raBCnVGqU02VgQ7Fiyrgdlc6rEqoh8joo6oXAVE1lonqmYeV1y0nMX+8iVes+fRqqpt534A/Tcn3CZR40=
+  on:
+    branch: master
+    tags: false
+    distributions: sdist bdist_wheel
+    repo: gqmelo/exec-wrappers
+    condition: $TRAVIS_PYTHON_VERSION = "2.7"
