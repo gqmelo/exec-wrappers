@@ -18,7 +18,7 @@ Rationale
 ``exec-wrappers`` is useful whenever you need a single executable file, but have to do some setup
 before executing it.
 
-If you develop using some kind of environment isolation like ``conda``, ``chroot``, ``schroot``,
+If you develop using some kind of environment isolation like ``conda``, ``schroot``,
 ``virtualenv`` you probably wanted to configure a GUI application like an IDE to use the executables
 available inside these environments.
 
@@ -81,17 +81,15 @@ Installation
 
     $ python setup.py install
 
-Usage
------
 
-There are some built-in templates to create wrappers.
+How it works
+------------
 
 Creating `conda`_ wrappers:
 
 .. code-block:: bash
 
-    $ create-wrappers  -t conda --bin-dir ~/miniconda/envs/test/bin --dest-dir /tmp/conda_wrappers
-    --conda-env-dir ~/miniconda/envs/test
+    $ create-wrappers  -t conda --bin-dir ~/miniconda/envs/test/bin --dest-dir /tmp/conda_wrappers --conda-env-dir ~/miniconda/envs/test
 
 This will create in ``/tmp/conda_wrappers`` a wrapper for each executable found in
 ``~/miniconda/envs/test/bin``.
@@ -112,16 +110,56 @@ Also a ``run-in`` script will be created, which you can use to run any arbitrary
     $ /tmp/conda_wrappers/run-in bash -c 'echo $CONDA_DEFAULT_ENV'
     /home/username/miniconda/envs/test
 
-It is also possible to chain different wrappers:
+
+Examples
+--------
+
+- conda:
 
 .. code-block:: bash
 
-    $ create-wrappers  -t schroot --bin-dir /tmp/conda_wrappers --dest-dir /tmp/schroot_wrappers
-    --schroot-name centos5
+    $ create-wrappers  -t conda -b ~/miniconda/envs/test/bin -d /tmp/conda_wrappers --conda-env-dir ~/miniconda/envs/test
 
-This will create wrappers that will enter the specified schroot and run the conda wrapper, which
-will activate the environment and execute the given command. Of course you need to have an
-existing schroot properly configured and the right mount points.
+
+- virtualenv:
+
+.. code-block:: bash
+
+    $ create-wrappers  -t virtualenv -b ~/python3-env/bin -d /tmp/virtualenv_wrappers --virtual-env-dir ~/python3-env
+
+
+- schroot:
+
+.. code-block:: bash
+
+    $ create-wrappers  -t schroot -b ~/chroots/centos5/bin -d /tmp/schroot_wrappers --schroot-name centos5
+
+.. code-block:: bash
+
+    $ create-wrappers  -t schroot -b ~/chroots/centos5/bin -d /tmp/schroot_wrappers --schroot-name centos5 --schroot-options="-p -d /"
+
+
+- custom:
+
+.. code-block:: bash
+
+    $ echo -e '#!/bin/sh\necho "$@"' > /tmp/custom-script && chmod a+x /tmp/custom-script
+    $ create-wrappers  -t custom --custom-script=/tmp/custom-script -b /usr/bin -d /tmp/custom_wrappers
+
+
+- wrap only specified files:
+
+.. code-block:: bash
+
+    $ create-wrappers  -t schroot -f gcc:gdb -d /tmp/schroot_wrappers --schroot-name centos5
+
+
+- chain multiple wrappers:
+
+.. code-block:: bash
+
+    $ create-wrappers  -t conda -b ~/miniconda/envs/test/bin -d /tmp/conda_wrappers --conda-env-dir ~/miniconda/envs/test
+    $ create-wrappers  -t schroot -b /tmp/conda_wrappers -d /tmp/schroot_wrappers --schroot-name centos5
 
 
 License
