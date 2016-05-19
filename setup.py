@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name="exec-wrappers",
-    version='0.1',
+    version='0.1.0',
     author="Guilherme Quentel Melo",
     author_email="gqmelo@gmail.com",
     url="https://github.com/gqmelo/exec-wrappers",
