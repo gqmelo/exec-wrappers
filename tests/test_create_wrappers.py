@@ -225,6 +225,25 @@ def test_dont_create_wrapper_when_file_has_same_name(tmpdir):
     assert wrappers_dir.join('run-in' + get_wrapper_extension()).read() == expected_run_in_content
 
 
+def test_create_custom_wrappers(tmpdir):
+    wrappers_dir = tmpdir.join('wrappers')
+    run_in_file = _create_custom_run_in_file(tmpdir)
+
+    create_wrappers._main([
+                              '-t', 'custom',
+                              '--custom-script', str(run_in_file),
+                              '--files-to-wrap', 'python',
+                              '--dest-dir', str(wrappers_dir),
+                          ])
+
+    _check_wrappers(wrappers_dir, ['run-in', 'python'])
+
+    python_wrapper = str(wrappers_dir.join('python' + get_wrapper_extension()))
+    import subprocess
+    python_ouput = subprocess.check_output([python_wrapper, '--version']).strip('\r\n')
+    assert python_ouput == 'python --version'
+
+
 def _check_wrappers(wrappers_dir, basenames):
     obtained_wrappers = sorted([f.basename for f in wrappers_dir.listdir()])
     expected_wrappers = sorted([f + get_wrapper_extension() for f in basenames])
@@ -233,3 +252,17 @@ def _check_wrappers(wrappers_dir, basenames):
 
     for f in wrappers_dir.listdir():
         assert os.access(str(f), os.X_OK)
+
+
+def _create_custom_run_in_file(tmpdir):
+    if sys.platform == 'win32':
+        run_in_content = 'echo %*\r\n'
+    else:
+        run_in_content = '#/bin/sh\necho "$@"\n'
+
+    run_in_filepath = tmpdir.join('custom-run-in' + get_wrapper_extension())
+    _create_executable_file(run_in_filepath)
+
+    run_in_filepath.write(run_in_content)
+
+    return run_in_filepath

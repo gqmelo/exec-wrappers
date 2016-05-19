@@ -13,23 +13,25 @@ def _main(raw_args):
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--type', type=str, required=True,
-                        help='The type of the wrapper. Possible values: conda, virtualenv, schroot')
+                        help='The type of the wrapper. Possible values: conda, virtualenv,'
+                             ' schroot, custom')
     parser.add_argument('-b', '--bin-dir', type=str, required=False,
                         help='Directory with the original executable files. If --files-to-wrap is'
-                             'not given, it will try to detect all executable files in this'
-                             'directory and create a wrapper for each of them. By default the'
-                             'wrapper will execute the absolute path.')
+                             ' not given, it will try to detect all executable files in this'
+                             ' directory and create a wrapper for each of them. By default the'
+                             ' wrapper will execute the absolute path.')
     parser.add_argument('--use-basename', action='store_true', required=False,
                         help='If given, the wrappers created with --bin-dir will execute the'
-                             'executable basename instead of the absolute path. Make sure that the'
-                             'wrappers behave appropriately as this depends on the PATH variable.')
+                             ' executable basename instead of the absolute path. Make sure that the'
+                             ' wrappers behave appropriately as this depends on the PATH variable.')
     parser.add_argument('-f', '--files-to-wrap', type=str, required=False,
-                        help='List of files separated by colon (:). If given only wrappers for '
-                             'files listed here will be created. By default the wrapper will execute'
-                             'the exact path that is passed to --files-to-wrap. If --bin-dir is'
-                             'given, it will be used as a prefix to --files-to-wrap')
+                        help='List of files separated by colon (:). If given only wrappers for'
+                             ' files listed here will be created. By default the wrapper will execute'
+                             ' the exact path that is passed to --files-to-wrap. If --bin-dir is'
+                             ' given, it will be used as a prefix to --files-to-wrap')
     parser.add_argument('-d', '--dest-dir', type=str, required=True,
                         help='Directory where the wrappers will be created')
+
 
     conda_group = parser.add_argument_group('conda')
     conda_group.add_argument('--conda-env-dir', type=str,
@@ -46,18 +48,24 @@ def _main(raw_args):
     schroot_name_group.add_argument('--schroot-session', type=str,
                                     help='Name of an existing schroot session')
     schroot_group.add_argument('--schroot-options', type=str,
-                               help='Extra options to be passed to the schroot command. E.g. '
-                                    '--schroot-options="-p -d $HOME"')
+                               help='Extra options to be passed to the schroot command. E.g.'
+                                    ' --schroot-options="-p -d $HOME"')
+
+    custom_group = parser.add_argument_group('custom')
+    custom_group.add_argument('--custom-script', type=str, required=False,
+                              help='This specifies a custom script which will be used to execute the'
+                                   ' wrapped commands.')
 
     args = parser.parse_args(raw_args)
 
     wrapper_type = args.type
-    if wrapper_type not in ['conda', 'virtualenv', 'schroot']:
+    if wrapper_type not in ['conda', 'virtualenv', 'schroot', 'custom']:
         print('Invalid wrapper type: {}'.format(wrapper_type))
         parser.print_usage()
 
     files_to_wrap = get_files_to_wrap(args.bin_dir, args.files_to_wrap, args.use_basename)
 
+    # TODO: Refactor these if's
     if wrapper_type == 'conda':
         if not args.conda_env_dir:
             print('Missing conda argument: --conda-env-dir')
@@ -79,6 +87,12 @@ def _main(raw_args):
             parser.print_usage()
             exit(1)
         create_virtualenv_wrappers(files_to_wrap, args.dest_dir, args.virtual_env_dir)
+    elif wrapper_type == 'custom':
+        if not args.custom_script:
+            print('Missing custom argument: --custom-script')
+            parser.print_usage()
+            exit(1)
+        create_custom_wrappers(files_to_wrap, args.dest_dir, args.custom_script)
     else:
         print('Invalid wrapper type: {}'.format(wrapper_type))
         parser.print_usage()
@@ -154,6 +168,20 @@ def create_schroot_wrappers(files_to_wrap, destination_dir, schroot_name=None,
         destination_dir,
         run_in_template_filename,
         create_content,
+    )
+
+
+def create_custom_wrappers(files_to_wrap, destination_dir, custom_script):
+    if not is_executable(custom_script):
+        raise ValueError('Custom script "{}" is not an executable')
+
+    os.path.exists(destination_dir) or os.makedirs(destination_dir)
+
+    _create_wrappers(
+        files_to_wrap,
+        destination_dir,
+        custom_script,
+        lambda content: content,
     )
 
 
