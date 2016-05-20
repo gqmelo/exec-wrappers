@@ -1,0 +1,34 @@
+package:
+  name: exec-wrappers
+  version: "0.1.0"
+
+source:
+  fn: exec-wrappers-0.1.0.tar.gz
+  url: https://pypi.python.org/packages/aa/08/e5e458bf948c988fcd5b7b73d62888a379dfa0d22eb62c1fd2e5a58298a1/exec-wrappers-0.1.0.tar.gz
+  md5: 84433d4831ba8ce758e44f5448395da0
+
+build:
+  entry_points:
+    - create-wrappers = exec_wrappers.create_wrappers:main
+
+  number: 0
+
+requirements:
+  build:
+    - python
+    - setuptools
+
+  run:
+    - python
+
+test:
+  imports:
+    - exec_wrappers
+
+  commands:
+    - create-wrappers --help
+
+about:
+  home: https://github.com/gqmelo/exec-wrappers
+  license: MIT
+  summary: 'wrappers for running commands that need some initial setup'
