@@ -2,6 +2,15 @@
 exec-wrappers
 =============
 
+.. image:: https://img.shields.io/pypi/v/exec-wrappers.svg
+    :target: https://pypi.python.org/pypi/exec-wrappers
+
+.. image:: https://img.shields.io/pypi/pyversions/exec-wrappers.svg
+    :target: https://pypi.python.org/pypi/exec-wrappers
+
+.. image:: https://img.shields.io/pypi/l/exec-wrappers.svg
+    :target: https://pypi.python.org/pypi/exec-wrappers
+
 .. image:: https://travis-ci.org/gqmelo/exec-wrappers.svg?branch=master
     :target: https://travis-ci.org/gqmelo/exec-wrappers
     :alt: See Build Status on Travis CI
