@@ -5,7 +5,7 @@
 @setlocal
 
 @set "CONDA_DEFAULT_ENV=__CONDA_ENV_DIR__"
-@set PATH="%CONDA_DEFAULT_ENV%";"%CONDA_DEFAULT_ENV%\Scripts";"%CONDA_DEFAULT_ENV%\Library\bin";%PATH%
+@set "PATH=%CONDA_DEFAULT_ENV%;%CONDA_DEFAULT_ENV%\Scripts;%CONDA_DEFAULT_ENV%\Library\bin;%PATH%"
 
 @REM Run any activate scripts
 @if exist "%CONDA_DEFAULT_ENV%\etc\conda\activate.d" (
