@@ -6,6 +6,10 @@ python:
   - "3.4"
   - "3.5"
   - "pypy"
+  - "nightly"
+
+allow_failures:
+  - python: "nightly"
 
 install:
   - pip install tox
