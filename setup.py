@@ -4,13 +4,13 @@ from setuptools import setup
 
 setup(
     name="exec-wrappers",
-    version='0.1.1',
+    version='1.0.0',
     author="Guilherme Quentel Melo",
     author_email="gqmelo@gmail.com",
     url="https://github.com/gqmelo/exec-wrappers",
     license="MIT",
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 2",
