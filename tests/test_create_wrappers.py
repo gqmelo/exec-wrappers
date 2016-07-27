@@ -62,6 +62,7 @@ def test_wrappers_creators(wrapper_creator, extra_kwargs, tmpdir):
     kwargs = {
         'files_to_wrap': [str(bin_dir.join('python')), str(bin_dir.join('gcc'))],
         'destination_dir': str(wrappers_dir),
+        'inline': False,
     }
     kwargs.update(extra_kwargs)
     wrapper_creator(**kwargs)
@@ -197,12 +198,33 @@ def test_specified_wrappers_should_use_absolute_path_when_given_bin_dir(wrapper_
     assert str(bin_dir.join('python')) in wrapper.read()
 
 
+@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
+def test_inline_wrappers(wrapper_type, extra_args, contents, tmpdir):
+    wrappers_dir = tmpdir.join('wrappers')
+
+    create_wrappers._main([
+                              '-t', wrapper_type,
+                              '--files-to-wrap', 'python:gcc',
+                              '--dest-dir', str(wrappers_dir),
+                              '--inline',
+                          ] + extra_args)
+
+    # No run-in file
+    _check_wrappers(wrappers_dir, ['python', 'gcc'])
+
+    wrapper = wrappers_dir.join('python' + get_wrapper_extension())
+    assert contents in wrapper.read()
+    wrapper = wrappers_dir.join('gcc' + get_wrapper_extension())
+    assert contents in wrapper.read()
+
+
 @pytest.mark.skipif(sys.platform != 'win32', reason='Extension handling only on Windows')
 def test_omit_original_extension(tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
     create_conda_wrappers([str(bin_dir.join('python.exe')), str(bin_dir.join('gcc.bat'))],
                           str(wrappers_dir),
+                          False,
                           'miniconda/envs/test')
 
     _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
@@ -217,6 +239,7 @@ def test_dont_create_wrapper_when_file_has_same_name(tmpdir):
 
     create_conda_wrappers([str(bin_dir.join('python')), str(bin_dir.join('gcc'))],
                           str(wrappers_dir),
+                          False,
                           'miniconda/envs/test')
 
     with open(os.path.join(get_templates_dir(), 'conda', 'run-in' + get_wrapper_extension())) as f:

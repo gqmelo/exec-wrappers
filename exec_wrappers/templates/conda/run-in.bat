@@ -15,6 +15,6 @@
 )
 
 @REM Execute the given command
-%*
+__COMMAND__%*
 
 @endlocal

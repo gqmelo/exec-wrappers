@@ -3,4 +3,4 @@
 export VIRTUAL_ENV="__VIRTUAL_ENV__"
 unset PYTHONHOME
 export PATH="$VIRTUAL_ENV/bin:$PATH"
-"$@"
+__COMMAND__"$@"

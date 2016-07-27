@@ -7,6 +7,6 @@
 @set "PATH=%VIRTUAL_ENV%\Scripts;%PATH%"
 
 @rem Execute the given command
-%*
+__COMMAND__%*
 
 @endlocal
