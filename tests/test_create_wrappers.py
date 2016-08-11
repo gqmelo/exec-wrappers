@@ -113,7 +113,9 @@ def test_create_automatic_wrappers(wrapper_type, extra_args, contents, tmpdir):
 
     wrapper = wrappers_dir.join('run-in' + get_wrapper_extension())
     # The wrapped command should be absolute
-    assert contents in wrapper.read()
+    wrapper_contents = wrapper.read()
+    assert contents in wrapper_contents
+    assert '__COMMAND__' not in wrapper_contents
 
 
 @pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
@@ -243,7 +245,9 @@ def test_dont_create_wrapper_when_file_has_same_name(tmpdir):
                           'miniconda/envs/test')
 
     with open(os.path.join(get_templates_dir(), 'conda', 'run-in' + get_wrapper_extension())) as f:
-        expected_run_in_content = f.read().replace('__CONDA_ENV_DIR__', 'miniconda/envs/test')
+        expected_run_in_content = f.read() \
+                                   .replace('__CONDA_ENV_DIR__', 'miniconda/envs/test') \
+                                   .replace('__COMMAND__', '')
 
     assert wrappers_dir.join('run-in' + get_wrapper_extension()).read() == expected_run_in_content
 

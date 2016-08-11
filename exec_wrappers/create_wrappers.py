@@ -229,7 +229,7 @@ def _create_wrappers(files_to_wrap, destination_dir, run_in_template_filename, i
     if not inline:
         run_in_filename = os.path.join(destination_dir, 'run-in' + get_wrapper_extension())
         with open(run_in_filename, 'w') as f:
-            f.write(run_in_template)
+            f.write(run_in_template.replace('__COMMAND__', ''))
         os.chmod(run_in_filename, os.stat(run_in_filename).st_mode | stat.S_IXUSR)
 
     for filename in files_to_wrap:
