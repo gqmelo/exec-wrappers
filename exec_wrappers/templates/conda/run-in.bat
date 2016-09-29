@@ -4,12 +4,14 @@
 
 @setlocal
 
-@set "CONDA_DEFAULT_ENV=__CONDA_ENV_DIR__"
-@set "PATH=%CONDA_DEFAULT_ENV%;%CONDA_DEFAULT_ENV%\Scripts;%CONDA_DEFAULT_ENV%\Library\bin;%PATH%"
+@set "CONDA_PREFIX=__CONDA_PREFIX__"
+@set "CONDA_DEFAULT_ENV=__CONDA_DEFAULT_ENV__"
+@set "CONDA_ENV_PATH=%CONDA_PREFIX%"
+@set "PATH=%CONDA_PREFIX%;%CONDA_PREFIX%\Scripts;%CONDA_PREFIX%\Library\bin;%PATH%"
 
 @REM Run any activate scripts
-@if exist "%CONDA_DEFAULT_ENV%\etc\conda\activate.d" (
-    @pushd "%CONDA_DEFAULT_ENV%\etc\conda\activate.d"
+@if exist "%CONDA_PREFIX%\etc\conda\activate.d" (
+    @pushd "%CONDA_PREFIX%\etc\conda\activate.d"
     @for %%g in (*.bat) do @call "%%g"
     @popd
 )

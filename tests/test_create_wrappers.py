@@ -1,8 +1,8 @@
 import os
-import pytest
-
 import stat
 import sys
+
+import pytest
 
 from exec_wrappers import create_wrappers
 from exec_wrappers.create_wrappers import list_executable_files, create_conda_wrappers, \
@@ -246,7 +246,8 @@ def test_dont_create_wrapper_when_file_has_same_name(tmpdir):
 
     with open(os.path.join(get_templates_dir(), 'conda', 'run-in' + get_wrapper_extension())) as f:
         expected_run_in_content = f.read() \
-                                   .replace('__CONDA_ENV_DIR__', 'miniconda/envs/test') \
+                                   .replace('__CONDA_PREFIX__', 'miniconda/envs/test') \
+                                   .replace('__CONDA_DEFAULT_ENV__', 'test') \
                                    .replace('__COMMAND__', '')
 
     assert wrappers_dir.join('run-in' + get_wrapper_extension()).read() == expected_run_in_content

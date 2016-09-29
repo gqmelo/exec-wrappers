@@ -7,9 +7,10 @@ run_activate_scripts() {
     fi
 }
 
-export CONDA_DEFAULT_ENV="__CONDA_ENV_DIR__"
-export CONDA_ENV_PATH="$CONDA_DEFAULT_ENV"
+export CONDA_PREFIX="__CONDA_PREFIX__"
+export CONDA_DEFAULT_ENV="__CONDA_DEFAULT_ENV__"
+export CONDA_ENV_PATH="$CONDA_PREFIX"
 
-export PATH="$CONDA_DEFAULT_ENV/bin:$PATH"
-run_activate_scripts "$CONDA_DEFAULT_ENV/etc/conda/activate.d" &&
+export PATH="$CONDA_PREFIX/bin:$PATH"
+run_activate_scripts "$CONDA_PREFIX/etc/conda/activate.d" &&
 __COMMAND__"$@"

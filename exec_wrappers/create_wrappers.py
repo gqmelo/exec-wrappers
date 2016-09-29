@@ -138,12 +138,18 @@ def create_conda_wrappers(files_to_wrap, destination_dir, inline, conda_env_dir)
 
     run_in_template_filename = os.path.join(this_dir, 'templates', 'conda', 'run-in' +
                                             get_wrapper_extension())
+
+    def template_function(content):
+        content = content.replace('__CONDA_PREFIX__', conda_env_dir)
+        content = content.replace('__CONDA_DEFAULT_ENV__', os.path.basename(conda_env_dir))
+        return content
+
     _create_wrappers(
         files_to_wrap,
         destination_dir,
         run_in_template_filename,
         inline,
-        lambda content: content.replace('__CONDA_ENV_DIR__', conda_env_dir),
+        template_function,
     )
 
 
