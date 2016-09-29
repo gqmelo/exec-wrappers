@@ -1,3 +1,10 @@
+1.0.2
+=========
+
+**Bug fixes**
+
+* Set CONDA_PREFIX variable. This variable is set by conda >= 4.1
+
 1.0.1
 =========
 
