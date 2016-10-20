@@ -1,3 +1,10 @@
+1.0.3
+=========
+
+**Bug fixes**
+
+* Set CONDA_PATH_BACKUP and CONDA_PS1_BACKUP variables used by conda 4.2
+
 1.0.2
 =========
 
