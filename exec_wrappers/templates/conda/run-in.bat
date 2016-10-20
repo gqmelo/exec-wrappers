@@ -7,6 +7,7 @@
 @set "CONDA_PREFIX=__CONDA_PREFIX__"
 @set "CONDA_DEFAULT_ENV=__CONDA_DEFAULT_ENV__"
 @set "CONDA_ENV_PATH=%CONDA_PREFIX%"
+@set "CONDA_PATH_BACKUP=%PATH%"
 @set "PATH=%CONDA_PREFIX%;%CONDA_PREFIX%\Scripts;%CONDA_PREFIX%\Library\bin;%PATH%"
 
 @REM Run any activate scripts
