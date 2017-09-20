@@ -226,8 +226,8 @@ def test_omit_original_extension(tmpdir):
     bin_dir = tmpdir.join('bin')
     create_conda_wrappers([str(bin_dir.join('python.exe')), str(bin_dir.join('gcc.bat'))],
                           str(wrappers_dir),
-                          False,
-                          'miniconda/envs/test')
+                          'miniconda/envs/test',
+                          inline=False)
 
     _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
 
@@ -241,8 +241,8 @@ def test_dont_create_wrapper_when_file_has_same_name(tmpdir):
 
     create_conda_wrappers([str(bin_dir.join('python')), str(bin_dir.join('gcc'))],
                           str(wrappers_dir),
-                          False,
-                          'miniconda/envs/test')
+                          'miniconda/envs/test',
+                          inline=False)
 
     with open(os.path.join(get_templates_dir(), 'conda', 'run-in' + get_wrapper_extension())) as f:
         expected_run_in_content = f.read() \

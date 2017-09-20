@@ -24,6 +24,9 @@ def _main(raw_args):
                         help='If given, the wrappers created with --bin-dir will execute the'
                              ' executable basename instead of the absolute path. Make sure that the'
                              ' wrappers behave appropriately as this depends on the PATH variable.')
+    parser.add_argument('--use-exec', action='store_true', required=False,
+                        help='Prepend the command with exec, so that the wrapping process will be'
+                             'replaced with the target process')
     parser.add_argument('--inline', action='store_true', required=False,
                         help='By default a generic run-in script will be created and all wrappers'
                              ' will delegate the actual work to it. If --inline is passed, the'
@@ -71,6 +74,8 @@ def _main(raw_args):
 
     files_to_wrap = get_files_to_wrap(args.bin_dir, args.files_to_wrap, args.use_basename)
 
+    kwargs = dict(inline=args.inline, command='exec ' if args.use_exec else '')
+
     # TODO: Refactor these if's
     if wrapper_type == 'conda':
         if not args.conda_env_dir:
@@ -79,8 +84,8 @@ def _main(raw_args):
             exit(1)
         create_conda_wrappers(files_to_wrap,
                               args.dest_dir,
-                              args.inline,
-                              args.conda_env_dir)
+                              args.conda_env_dir,
+                              **kwargs)
     elif wrapper_type == 'schroot':
         if not args.schroot_name and not args.schroot_session:
             print('Missing schroot argument: should pass either --schroot-name or '
@@ -89,10 +94,10 @@ def _main(raw_args):
             exit(1)
         create_schroot_wrappers(files_to_wrap,
                                 args.dest_dir,
-                                args.inline,
                                 schroot_name=args.schroot_name,
                                 schroot_session=args.schroot_session,
-                                schroot_options=args.schroot_options)
+                                schroot_options=args.schroot_options,
+                                **kwargs)
     elif wrapper_type == 'virtualenv':
         if not args.virtual_env_dir:
             print('Missing virtualenv argument: --virtual-env-dir')
@@ -100,8 +105,8 @@ def _main(raw_args):
             exit(1)
         create_virtualenv_wrappers(files_to_wrap,
                                    args.dest_dir,
-                                   args.inline,
-                                   args.virtual_env_dir)
+                                   args.virtual_env_dir,
+                                   **kwargs)
     elif wrapper_type == 'custom':
         if not args.custom_script:
             print('Missing custom argument: --custom-script')
@@ -109,8 +114,8 @@ def _main(raw_args):
             exit(1)
         create_custom_wrappers(files_to_wrap,
                                args.dest_dir,
-                               args.inline,
-                               args.custom_script)
+                               args.custom_script,
+                               **kwargs)
     else:
         print('Invalid wrapper type: {}'.format(wrapper_type))
         parser.print_usage()
@@ -131,7 +136,7 @@ def get_files_to_wrap(bin_dir=None, specified_files_to_wrap=None, use_basename=F
     return files_to_wrap
 
 
-def create_conda_wrappers(files_to_wrap, destination_dir, inline, conda_env_dir):
+def create_conda_wrappers(files_to_wrap, destination_dir, conda_env_dir, **kwargs):
     os.path.exists(destination_dir) or os.makedirs(destination_dir)
 
     this_dir = os.path.dirname(__file__)
@@ -148,12 +153,12 @@ def create_conda_wrappers(files_to_wrap, destination_dir, inline, conda_env_dir)
         files_to_wrap,
         destination_dir,
         run_in_template_filename,
-        inline,
         template_function,
+        **kwargs
     )
 
 
-def create_virtualenv_wrappers(files_to_wrap, destination_dir, inline, virtual_env_dir):
+def create_virtualenv_wrappers(files_to_wrap, destination_dir, virtual_env_dir, **kwargs):
     os.path.exists(destination_dir) or os.makedirs(destination_dir)
 
     this_dir = os.path.dirname(__file__)
@@ -164,14 +169,14 @@ def create_virtualenv_wrappers(files_to_wrap, destination_dir, inline, virtual_e
         files_to_wrap,
         destination_dir,
         run_in_template_filename,
-        inline,
         lambda content: content.replace('__VIRTUAL_ENV__', virtual_env_dir),
+        **kwargs
     )
 
 
-def create_schroot_wrappers(files_to_wrap, destination_dir, inline,
+def create_schroot_wrappers(files_to_wrap, destination_dir,
                             schroot_name=None, schroot_session=None,
-                            schroot_options=None):
+                            schroot_options=None, **kwargs):
     assert schroot_name or schroot_session
     if schroot_options:
         schroot_options = schroot_options + ' '
@@ -194,12 +199,12 @@ def create_schroot_wrappers(files_to_wrap, destination_dir, inline,
         files_to_wrap,
         destination_dir,
         run_in_template_filename,
-        inline,
         create_content,
+        **kwargs
     )
 
 
-def create_custom_wrappers(files_to_wrap, destination_dir, inline, custom_script):
+def create_custom_wrappers(files_to_wrap, destination_dir, custom_script, **kwargs):
     if not is_executable(custom_script):
         raise ValueError('Custom script "{}" is not an executable')
 
@@ -209,8 +214,8 @@ def create_custom_wrappers(files_to_wrap, destination_dir, inline, custom_script
         files_to_wrap,
         destination_dir,
         custom_script,
-        inline,
         lambda content: content,
+        **kwargs
     )
 
 
@@ -226,7 +231,8 @@ def get_wrapper_extension():
         return ''
 
 
-def _create_wrappers(files_to_wrap, destination_dir, run_in_template_filename, inline, template_func):
+def _create_wrappers(files_to_wrap, destination_dir, run_in_template_filename, template_func,
+                     inline=False, command=''):
     os.path.exists(destination_dir) or os.makedirs(destination_dir)
 
     with open(run_in_template_filename, 'r') as f:
@@ -235,7 +241,7 @@ def _create_wrappers(files_to_wrap, destination_dir, run_in_template_filename, i
     if not inline:
         run_in_filename = os.path.join(destination_dir, 'run-in' + get_wrapper_extension())
         with open(run_in_filename, 'w') as f:
-            f.write(run_in_template.replace('__COMMAND__', ''))
+            f.write(run_in_template.replace('__COMMAND__', command))
         os.chmod(run_in_filename, os.stat(run_in_filename).st_mode | stat.S_IXUSR)
 
     for filename in files_to_wrap:
@@ -245,9 +251,10 @@ def _create_wrappers(files_to_wrap, destination_dir, run_in_template_filename, i
         destination_filename = get_wrapper_full_path(destination_dir, basename)
 
         if inline:
-            content = run_in_template.replace('__COMMAND__', filename + ' ')
+            content = run_in_template.replace('__COMMAND__', command + filename + ' ')
         else:
-            content = get_wrapper_template().format(run_in_file=run_in_filename,
+            content = get_wrapper_template().format(command=command,
+                                                    run_in_file=run_in_filename,
                                                     wrapped_file=filename)
 
         with open(destination_filename, 'w') as f:
@@ -265,10 +272,10 @@ def get_wrapper_full_path(destination_dir, basename):
 def get_wrapper_template():
     if sys.platform == 'win32':
         return '''@echo off
-{run_in_file} {wrapped_file} %*'''
+{command}{run_in_file} {wrapped_file} %*'''
     else:
         return '''#!/bin/sh
-{run_in_file} {wrapped_file} "$@"
+{command}{run_in_file} {wrapped_file} "$@"
 '''
 
 
