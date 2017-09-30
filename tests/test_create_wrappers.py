@@ -5,12 +5,14 @@ import sys
 import pytest
 
 from exec_wrappers import create_wrappers
-from exec_wrappers.create_wrappers import list_executable_files, create_conda_wrappers, \
+from exec_wrappers.create_wrappers import list_executable_files, \
+    create_conda_wrappers, \
     create_schroot_wrappers, get_templates_dir, get_wrapper_extension
 
 
 def test_list_executable_files(tmpdir):
-    executable_filename = _create_executable_file(tmpdir.join('executable_filename'))
+    executable_filename = _create_executable_file(
+        tmpdir.join('executable_filename'))
 
     _create_non_executable_file(tmpdir.join('non_executable'))
 
@@ -54,13 +56,15 @@ if sys.platform.startswith('linux'):
     ])
 
 
-@pytest.mark.parametrize(('wrapper_creator', 'extra_kwargs'), WRAPPER_CREATOR_AND_ARGS)
+@pytest.mark.parametrize(('wrapper_creator', 'extra_kwargs'),
+                         WRAPPER_CREATOR_AND_ARGS)
 def test_wrappers_creators(wrapper_creator, extra_kwargs, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
 
     kwargs = {
-        'files_to_wrap': [str(bin_dir.join('python')), str(bin_dir.join('gcc'))],
+        'files_to_wrap': [str(bin_dir.join('python')),
+                          str(bin_dir.join('gcc'))],
         'destination_dir': str(wrappers_dir),
         'inline': False,
     }
@@ -72,8 +76,10 @@ def test_wrappers_creators(wrapper_creator, extra_kwargs, tmpdir):
 
 WRAPPER_TYPE_ARGS_CONTENT = [
     # The third element a string that should be present in the run-in script
-    ('conda', (['--conda-env-dir', 'miniconda/envs/test']), 'miniconda/envs/test'),
-    ('virtualenv', (['--virtual-env-dir', 'virtualenv/test-env']), 'virtualenv/test-env'),
+    ('conda', (['--conda-env-dir', 'miniconda/envs/test']),
+     'miniconda/envs/test'),
+    ('virtualenv', (['--virtual-env-dir', 'virtualenv/test-env']),
+     'virtualenv/test-env'),
 ]
 if sys.platform.startswith('linux'):
     WRAPPER_TYPE_ARGS_CONTENT.extend([
@@ -84,7 +90,12 @@ if sys.platform.startswith('linux'):
         ),
         (
             'schroot',
-            (['--schroot-name', 'ubuntu-14.04', '--schroot-options', '-p -d /tmp']),
+            ([
+                '--schroot-name',
+                'ubuntu-14.04',
+                '--schroot-options',
+                '-p -d /tmp'
+            ]),
             'schroot -p -d /tmp -c ubuntu-14.04 -- '
         ),
         (
@@ -95,7 +106,8 @@ if sys.platform.startswith('linux'):
     ])
 
 
-@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
+@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'),
+                         WRAPPER_TYPE_ARGS_CONTENT)
 def test_create_automatic_wrappers(wrapper_type, extra_args, contents, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
@@ -118,8 +130,12 @@ def test_create_automatic_wrappers(wrapper_type, extra_args, contents, tmpdir):
     assert '__COMMAND__' not in wrapper_contents
 
 
-@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
-def test_automatic_wrappers_should_use_absolute_path_by_default(wrapper_type, extra_args, contents, tmpdir):
+@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'),
+                         WRAPPER_TYPE_ARGS_CONTENT)
+def test_automatic_wrappers_should_use_absolute_path_by_default(wrapper_type,
+                                                                extra_args,
+                                                                contents,
+                                                                tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
     bin_dir.mkdir()
@@ -136,8 +152,12 @@ def test_automatic_wrappers_should_use_absolute_path_by_default(wrapper_type, ex
     assert str(python_bin) in wrapper.read()
 
 
-@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
-def test_automatic_wrappers_should_use_basename_when_asked(wrapper_type, extra_args, contents, tmpdir):
+@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'),
+                         WRAPPER_TYPE_ARGS_CONTENT)
+def test_automatic_wrappers_should_use_basename_when_asked(wrapper_type,
+                                                           extra_args,
+                                                           contents,
+                                                           tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
     bin_dir.mkdir()
@@ -155,8 +175,10 @@ def test_automatic_wrappers_should_use_basename_when_asked(wrapper_type, extra_a
     assert ' {} '.format(python_bin.basename) in wrapper.read()
 
 
-@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
-def test_create_only_specified_wrappers(wrapper_type, extra_args, contents, tmpdir):
+@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'),
+                         WRAPPER_TYPE_ARGS_CONTENT)
+def test_create_only_specified_wrappers(wrapper_type, extra_args, contents,
+                                        tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
 
     create_wrappers._main([
@@ -168,8 +190,12 @@ def test_create_only_specified_wrappers(wrapper_type, extra_args, contents, tmpd
     _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
 
 
-@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
-def test_specified_wrappers_should_use_relative_path_by_default(wrapper_type, extra_args, contents, tmpdir):
+@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'),
+                         WRAPPER_TYPE_ARGS_CONTENT)
+def test_specified_wrappers_should_use_relative_path_by_default(wrapper_type,
+                                                                extra_args,
+                                                                contents,
+                                                                tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
 
     create_wrappers._main([
@@ -183,8 +209,10 @@ def test_specified_wrappers_should_use_relative_path_by_default(wrapper_type, ex
     assert ' python ' in wrapper.read()
 
 
-@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
-def test_specified_wrappers_should_use_absolute_path_when_given_bin_dir(wrapper_type, extra_args, contents, tmpdir):
+@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'),
+                         WRAPPER_TYPE_ARGS_CONTENT)
+def test_specified_wrappers_should_use_absolute_path_when_given_bin_dir(
+        wrapper_type, extra_args, contents, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
 
@@ -200,7 +228,8 @@ def test_specified_wrappers_should_use_absolute_path_when_given_bin_dir(wrapper_
     assert str(bin_dir.join('python')) in wrapper.read()
 
 
-@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
+@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'),
+                         WRAPPER_TYPE_ARGS_CONTENT)
 def test_inline_wrappers(wrapper_type, extra_args, contents, tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
 
@@ -220,14 +249,16 @@ def test_inline_wrappers(wrapper_type, extra_args, contents, tmpdir):
     assert contents in wrapper.read()
 
 
-@pytest.mark.skipif(sys.platform != 'win32', reason='Extension handling only on Windows')
+@pytest.mark.skipif(sys.platform != 'win32',
+                    reason='Extension handling only on Windows')
 def test_omit_original_extension(tmpdir):
     wrappers_dir = tmpdir.join('wrappers')
     bin_dir = tmpdir.join('bin')
-    create_conda_wrappers([str(bin_dir.join('python.exe')), str(bin_dir.join('gcc.bat'))],
-                          str(wrappers_dir),
-                          'miniconda/envs/test',
-                          inline=False)
+    create_conda_wrappers(
+        [str(bin_dir.join('python.exe')), str(bin_dir.join('gcc.bat'))],
+        str(wrappers_dir),
+        'miniconda/envs/test',
+        inline=False)
 
     _check_wrappers(wrappers_dir, ['run-in', 'python', 'gcc'])
 
@@ -239,18 +270,21 @@ def test_dont_create_wrapper_when_file_has_same_name(tmpdir):
     # It should not create a wrapper for run-in, otherwise it will overwrite
     _create_executable_file(bin_dir.join('run-in'))
 
-    create_conda_wrappers([str(bin_dir.join('python')), str(bin_dir.join('gcc'))],
-                          str(wrappers_dir),
-                          'miniconda/envs/test',
-                          inline=False)
+    create_conda_wrappers(
+        [str(bin_dir.join('python')), str(bin_dir.join('gcc'))],
+        str(wrappers_dir),
+        'miniconda/envs/test',
+        inline=False)
 
-    with open(os.path.join(get_templates_dir(), 'conda', 'run-in' + get_wrapper_extension())) as f:
+    with open(os.path.join(get_templates_dir(), 'conda',
+                           'run-in' + get_wrapper_extension())) as f:
         expected_run_in_content = f.read() \
-                                   .replace('__CONDA_PREFIX__', 'miniconda/envs/test') \
-                                   .replace('__CONDA_DEFAULT_ENV__', 'test') \
-                                   .replace('__COMMAND__', '')
+            .replace('__CONDA_PREFIX__', 'miniconda/envs/test') \
+            .replace('__CONDA_DEFAULT_ENV__', 'test') \
+            .replace('__COMMAND__', '')
 
-    assert wrappers_dir.join('run-in' + get_wrapper_extension()).read() == expected_run_in_content
+    assert wrappers_dir.join(
+        'run-in' + get_wrapper_extension()).read() == expected_run_in_content
 
 
 def test_create_custom_wrappers(tmpdir):
@@ -258,23 +292,25 @@ def test_create_custom_wrappers(tmpdir):
     run_in_file = _create_custom_run_in_file(tmpdir)
 
     create_wrappers._main([
-                              '-t', 'custom',
-                              '--custom-script', str(run_in_file),
-                              '--files-to-wrap', 'python',
-                              '--dest-dir', str(wrappers_dir),
-                          ])
+        '-t', 'custom',
+        '--custom-script', str(run_in_file),
+        '--files-to-wrap', 'python',
+        '--dest-dir', str(wrappers_dir),
+    ])
 
     _check_wrappers(wrappers_dir, ['run-in', 'python'])
 
     python_wrapper = str(wrappers_dir.join('python' + get_wrapper_extension()))
     import subprocess
-    python_output = str(subprocess.check_output([python_wrapper, '--version']).decode())
+    python_output = str(
+        subprocess.check_output([python_wrapper, '--version']).decode())
     assert python_output.strip('\r\n') == 'python --version'
 
 
 def _check_wrappers(wrappers_dir, basenames):
     obtained_wrappers = sorted([f.basename for f in wrappers_dir.listdir()])
-    expected_wrappers = sorted([f + get_wrapper_extension() for f in basenames])
+    expected_wrappers = sorted(
+        [f + get_wrapper_extension() for f in basenames])
 
     assert obtained_wrappers == expected_wrappers
 
