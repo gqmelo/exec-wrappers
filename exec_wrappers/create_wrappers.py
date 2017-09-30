@@ -158,6 +158,7 @@ def get_files_to_wrap(bin_dir=None, specified_files_to_wrap=None,
 def create_conda_wrappers(files_to_wrap, destination_dir, conda_env_dir,
                           **kwargs):
     os.path.exists(destination_dir) or os.makedirs(destination_dir)
+    conda_env_dir = os.path.abspath(conda_env_dir)
 
     this_dir = os.path.dirname(__file__)
 
@@ -183,6 +184,7 @@ def create_conda_wrappers(files_to_wrap, destination_dir, conda_env_dir,
 def create_virtualenv_wrappers(files_to_wrap, destination_dir, virtual_env_dir,
                                **kwargs):
     os.path.exists(destination_dir) or os.makedirs(destination_dir)
+    virtual_env_dir = os.path.abspath(virtual_env_dir)
 
     this_dir = os.path.dirname(__file__)
 

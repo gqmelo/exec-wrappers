@@ -1,13 +1,14 @@
 import os
 import stat
+import subprocess
 import sys
 
 import pytest
 
 from exec_wrappers import create_wrappers
 from exec_wrappers.create_wrappers import list_executable_files, \
-    create_conda_wrappers, \
-    create_schroot_wrappers, get_templates_dir, get_wrapper_extension
+    create_conda_wrappers, create_schroot_wrappers, \
+    create_virtualenv_wrappers, get_templates_dir, get_wrapper_extension
 
 
 def test_list_executable_files(tmpdir):
@@ -15,6 +16,7 @@ def test_list_executable_files(tmpdir):
         tmpdir.join('executable_filename'))
 
     _create_non_executable_file(tmpdir.join('non_executable'))
+    tmpdir.ensure_dir('directory')
 
     assert list_executable_files(str(tmpdir)) == [str(executable_filename)]
 
@@ -49,6 +51,7 @@ def _create_non_executable_file(filepath):
 
 WRAPPER_CREATOR_AND_ARGS = [
     (create_conda_wrappers, {'conda_env_dir': 'miniconda/envs/test'}),
+    (create_virtualenv_wrappers, {'virtual_env_dir': 'virtualenvs/test'}),
 ]
 if sys.platform.startswith('linux'):
     WRAPPER_CREATOR_AND_ARGS.extend([
@@ -77,9 +80,9 @@ def test_wrappers_creators(wrapper_creator, extra_kwargs, tmpdir):
 WRAPPER_TYPE_ARGS_CONTENT = [
     # The third element a string that should be present in the run-in script
     ('conda', (['--conda-env-dir', 'miniconda/envs/test']),
-     'miniconda/envs/test'),
+     os.path.abspath('miniconda/envs/test')),
     ('virtualenv', (['--virtual-env-dir', 'virtualenv/test-env']),
-     'virtualenv/test-env'),
+     os.path.abspath('virtualenv/test-env')),
 ]
 if sys.platform.startswith('linux'):
     WRAPPER_TYPE_ARGS_CONTENT.extend([
@@ -276,15 +279,18 @@ def test_dont_create_wrapper_when_file_has_same_name(tmpdir):
         'miniconda/envs/test',
         inline=False)
 
-    with open(os.path.join(get_templates_dir(), 'conda',
-                           'run-in' + get_wrapper_extension())) as f:
+    run_in_template_path = os.path.join(get_templates_dir(),
+                                        'conda',
+                                        'run-in' + get_wrapper_extension())
+    with open(run_in_template_path) as f:
         expected_run_in_content = f.read() \
-            .replace('__CONDA_PREFIX__', 'miniconda/envs/test') \
+            .replace('__CONDA_PREFIX__',
+                     os.path.abspath('miniconda/envs/test')) \
             .replace('__CONDA_DEFAULT_ENV__', 'test') \
             .replace('__COMMAND__', '')
 
-    assert wrappers_dir.join(
-        'run-in' + get_wrapper_extension()).read() == expected_run_in_content
+    assert wrappers_dir.join('run-in' + get_wrapper_extension()).read() == \
+        expected_run_in_content
 
 
 def test_create_custom_wrappers(tmpdir):
@@ -301,7 +307,6 @@ def test_create_custom_wrappers(tmpdir):
     _check_wrappers(wrappers_dir, ['run-in', 'python'])
 
     python_wrapper = str(wrappers_dir.join('python' + get_wrapper_extension()))
-    import subprocess
     python_output = str(
         subprocess.check_output([python_wrapper, '--version']).decode())
     assert python_output.strip('\r\n') == 'python --version'

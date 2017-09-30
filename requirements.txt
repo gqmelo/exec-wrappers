@@ -1,3 +1,5 @@
+backports.shutil_which
 flake8
 pytest
 pytest-cov
+virtualenv
