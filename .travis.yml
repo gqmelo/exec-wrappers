@@ -16,6 +16,12 @@ matrix:
           env:
             - TRAVIS_PYTHON_VERSION=3.5
             - PYTHON=3.5.2
+        - language: python
+          env:
+            - TOX_ENV=coverage
+        - language: python
+          env:
+            - TOX_ENV=linting
 
 allow_failures:
   - python: "nightly"
@@ -35,10 +41,14 @@ before_install: |
 
 install:
   - pip install tox
-  - "TOX_ENV=${TRAVIS_PYTHON_VERSION/[0-9].[0-9]/py${TRAVIS_PYTHON_VERSION/.}}"
-script: tox -e $TOX_ENV
+  - pip freeze
+  - if [ -z $TOX_ENV ]; then export TOX_ENV="${TRAVIS_PYTHON_VERSION/[0-9].[0-9]/py${TRAVIS_PYTHON_VERSION/.}}"; fi
+script:
+  - tox -e $TOX_ENV
 before_cache:
   - rm -rf $HOME/.cache/pip/log
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 cache:
   directories:
   - "$HOME/.cache/pip"
@@ -54,7 +64,7 @@ deploy:
       branch: master
       tags: false
       repo: gqmelo/exec-wrappers
-      condition: $TRAVIS_PYTHON_VERSION = "2.7"
+      condition: $TOX_ENV = "py27"
 
   # production PyPI
   - provider: pypi
@@ -66,4 +76,4 @@ deploy:
       branch: master
       tags: true
       repo: gqmelo/exec-wrappers
-      condition: $TRAVIS_PYTHON_VERSION = "2.7"
+      condition: $TOX_ENV = "py27"
