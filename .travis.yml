@@ -40,6 +40,7 @@ before_install: |
   fi
 
 install:
+  - source ./ci_support/install_miniconda.sh
   - pip install tox
   - pip freeze
   - if [ -z $TOX_ENV ]; then export TOX_ENV="${TRAVIS_PYTHON_VERSION/[0-9].[0-9]/py${TRAVIS_PYTHON_VERSION/.}}"; fi
@@ -47,11 +48,13 @@ script:
   - tox -e $TOX_ENV
 before_cache:
   - rm -rf $HOME/.cache/pip/log
+  - conda clean --all
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 cache:
   directories:
   - "$HOME/.cache/pip"
+  - "$HOME/miniconda"
 deploy:
   # test PyPI
   - provider: pypi
