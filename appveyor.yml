@@ -24,6 +24,8 @@ init:
   - "%PYTHON%/python -c \"import struct;print( 8 * struct.calcsize(\'P\'))\""
 
 install:
+  - "set \"PATH=C:\\Miniconda36-x64\\Scripts;%PATH%\""
+  - "conda --version"
   - "%PYTHON%/Scripts/easy_install -U pip"
   - "%PYTHON%/Scripts/pip install tox"
   - "%PYTHON%/Scripts/pip install wheel"
