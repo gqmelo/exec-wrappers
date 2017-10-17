@@ -1,4 +1,5 @@
 import os
+import subprocess
 import stat
 import sys
 
@@ -152,7 +153,7 @@ def test_automatic_wrappers_should_use_basename_when_asked(wrapper_type, extra_a
 
     wrapper = wrappers_dir.join('python' + get_wrapper_extension())
     # The wrapped command should be the basename only
-    assert ' {} '.format(python_bin.basename) in wrapper.read()
+    assert '"{}"'.format(python_bin.basename) in wrapper.read()
 
 
 @pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
@@ -180,7 +181,7 @@ def test_specified_wrappers_should_use_relative_path_by_default(wrapper_type, ex
 
     wrapper = wrappers_dir.join('python' + get_wrapper_extension())
     # The wrapped command should be exactly as we passed to command line
-    assert ' python ' in wrapper.read()
+    assert ' "python" ' in wrapper.read()
 
 
 @pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
@@ -267,9 +268,26 @@ def test_create_custom_wrappers(tmpdir):
     _check_wrappers(wrappers_dir, ['run-in', 'python'])
 
     python_wrapper = str(wrappers_dir.join('python' + get_wrapper_extension()))
-    import subprocess
     python_output = str(subprocess.check_output([python_wrapper, '--version']).decode())
-    assert python_output.strip('\r\n') == 'python --version'
+    assert python_output.strip('\r\n') == '"python" --version'
+
+
+@pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
+def test_create_wrappers_with_path_spaces(wrapper_type, extra_args, contents, tmpdir):
+    wrappers_dir = tmpdir.join('wrappers with space')
+    bin_dir = tmpdir.join('bin with space')
+    bin_dir.mkdir()
+    _create_executable_file(bin_dir.join('python'))
+
+    create_wrappers._main([
+                              '-t', wrapper_type,
+                              '--bin-dir', str(bin_dir),
+                              '--dest-dir', str(wrappers_dir),
+                          ] + extra_args)
+    wrapper = str(wrappers_dir.join('python' + get_wrapper_extension()))
+
+    subprocess.check_call(wrapper)
+
 
 
 def _check_wrappers(wrappers_dir, basenames):
@@ -280,7 +298,6 @@ def _check_wrappers(wrappers_dir, basenames):
 
     for f in wrappers_dir.listdir():
         assert os.access(str(f), os.X_OK)
-
 
 def _create_custom_run_in_file(tmpdir):
     if sys.platform == 'win32':

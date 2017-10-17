@@ -11,23 +11,23 @@
 @set "SCRIPTS_DIR=%ENV_DIR%\Scripts"
 @set "WRAPPERS_DIR=%ENV_DIR%\Scripts\wrappers\conda"
 
-@echo Creating wrappers from %BIN_DIR% to %WRAPPERS_DIR%
-@create-wrappers ^
+@echo Creating wrappers from "%BIN_DIR%" to "%WRAPPERS_DIR%"
+@"create-wrappers" ^
     -t conda ^
-    -b %BIN_DIR% ^
-    -d %WRAPPERS_DIR% ^
-    --conda-env-dir %ENV_DIR%
+    -b "%BIN_DIR%" ^
+    -d "%WRAPPERS_DIR%" ^
+    --conda-env-dir "%ENV_DIR%"
 
-@echo Creating wrappers from %SCRIPTS_DIR% to %WRAPPERS_DIR%
+@echo Creating wrappers from "%SCRIPTS_DIR%" to "%WRAPPERS_DIR%"
 @create-wrappers ^
     -t conda ^
-    -b %SCRIPTS_DIR% ^
-    -d %WRAPPERS_DIR% ^
-    --conda-env-dir %ENV_DIR%
+    -b "%SCRIPTS_DIR%" ^
+    -d "%WRAPPERS_DIR%" ^
+    --conda-env-dir "%ENV_DIR%"
 
-@echo Creating wrappers from %ENV_DIR% to %WRAPPERS_DIR%
+@echo Creating wrappers from "%ENV_DIR%" to "%WRAPPERS_DIR%"
 @create-wrappers ^
     -t conda ^
-    -b %ENV_DIR% ^
-    -d %WRAPPERS_DIR% ^
-    --conda-env-dir %ENV_DIR%
+    -b "%ENV_DIR%" ^
+    -d "%WRAPPERS_DIR%" ^
+    --conda-env-dir "%ENV_DIR%"
