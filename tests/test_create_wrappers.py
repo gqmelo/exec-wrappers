@@ -269,7 +269,10 @@ def test_create_custom_wrappers(tmpdir):
 
     python_wrapper = str(wrappers_dir.join('python' + get_wrapper_extension()))
     python_output = str(subprocess.check_output([python_wrapper, '--version']).decode())
-    assert python_output.strip('\r\n') == '"python" --version'
+    if sys.platform == 'win32':
+        assert python_output.strip('\r\n') == '"python" --version'
+    else:
+        assert python_output.strip('\r\n') == 'python --version'
 
 
 @pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'), WRAPPER_TYPE_ARGS_CONTENT)
