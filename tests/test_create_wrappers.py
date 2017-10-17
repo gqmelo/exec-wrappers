@@ -175,7 +175,7 @@ def test_automatic_wrappers_should_use_basename_when_asked(wrapper_type,
 
     wrapper = wrappers_dir.join('python' + get_wrapper_extension())
     # The wrapped command should be the basename only
-    assert ' {} '.format(python_bin.basename) in wrapper.read()
+    assert '"{}"'.format(python_bin.basename) in wrapper.read()
 
 
 @pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'),
@@ -209,7 +209,7 @@ def test_specified_wrappers_should_use_relative_path_by_default(wrapper_type,
 
     wrapper = wrappers_dir.join('python' + get_wrapper_extension())
     # The wrapped command should be exactly as we passed to command line
-    assert ' python ' in wrapper.read()
+    assert ' "python" ' in wrapper.read()
 
 
 @pytest.mark.parametrize(('wrapper_type', 'extra_args', 'contents'),
@@ -325,7 +325,7 @@ def _check_wrappers(wrappers_dir, basenames):
 
 def _create_custom_run_in_file(tmpdir):
     if sys.platform == 'win32':
-        run_in_content = 'echo %*\r\n'
+        run_in_content = 'echo %~1 %~2\r\n'
     else:
         run_in_content = '#/bin/sh\necho "$@"\n'
 
