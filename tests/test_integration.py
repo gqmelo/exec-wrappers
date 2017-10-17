@@ -24,11 +24,16 @@ def test_execute_virtualenv_wrappers(tmpdir, monkeypatch):
                                   no_pip=True,
                                   no_wheel=True)
 
+    if sys.platform != 'win32':
+        bin_dir = 'virtualenvs/test/bin'
+    else:
+        bin_dir = 'virtualenvs/test/Scripts'
+
     create_wrappers._main([
         '-t', 'virtualenv',
         '--virtual-env-dir', 'virtualenvs/test',
+        '--bin-dir', bin_dir,
         '--dest-dir', 'wrappers',
-        '--files-to-wrap', 'python',
     ])
 
     environ_from_activate = _environ_from_activate(
@@ -65,11 +70,15 @@ def test_execute_conda_wrappers(tmpdir, monkeypatch):
                            'root',
                            '-p', 'condaenvs/test'])
 
+    if sys.platform != 'win32':
+        bin_dir = 'condaenvs/test/bin'
+    else:
+        bin_dir = 'condaenvs/test'
     create_wrappers._main([
         '-t', 'conda',
         '--conda-env-dir', 'condaenvs/test',
+        '--bin-dir', bin_dir,
         '--dest-dir', 'wrappers',
-        '--files-to-wrap', 'python',
     ])
 
     environ_from_activate = _environ_from_activate(
