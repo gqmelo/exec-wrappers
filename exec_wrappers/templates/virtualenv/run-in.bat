@@ -2,7 +2,7 @@
 
 @setlocal
 
-@set "VIRTUAL_ENV=__VIRTUAL_ENV__"
+@for %%i in ("__VIRTUAL_ENV__") do @set "VIRTUAL_ENV=%%~si"
 @set PYTHONHOME=
 @set "PATH=%VIRTUAL_ENV%\Scripts;%PATH%"
 

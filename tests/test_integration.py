@@ -19,19 +19,19 @@ def test_execute_virtualenv_wrappers(tmpdir, monkeypatch):
     # monkey patch the current dir to make sure we convert the relative paths
     # passed as arguments to absolute
     monkeypatch.chdir(tmpdir)
-    virtualenv.create_environment('virtualenvs/test',
+    virtualenv.create_environment('virtual envs/test',
                                   no_setuptools=True,
                                   no_pip=True,
                                   no_wheel=True)
 
     if sys.platform != 'win32':
-        bin_dir = 'virtualenvs/test/bin'
+        bin_dir = 'virtual envs/test/bin'
     else:
-        bin_dir = 'virtualenvs/test/Scripts'
+        bin_dir = 'virtual envs/test/Scripts'
 
     create_wrappers._main([
         '-t', 'virtualenv',
-        '--virtual-env-dir', 'virtualenvs/test',
+        '--virtual-env-dir', 'virtual envs/test',
         '--bin-dir', bin_dir,
         '--dest-dir', 'wrappers',
     ])
@@ -46,12 +46,20 @@ def test_execute_virtualenv_wrappers(tmpdir, monkeypatch):
         environ_from_activate.pop('_OLD_VIRTUAL_PATH')
         environ_from_activate.pop('_OLD_VIRTUAL_PROMPT')
         environ_from_activate.pop('PROMPT')
+        environ_from_activate['PATH'] = \
+            os.path.normcase(environ_from_activate['PATH'])
+        environ_from_activate['VIRTUAL_ENV'] = \
+            os.path.normcase(environ_from_activate['VIRTUAL_ENV'])
 
     environ_from_wrapper = _environ_from_wrapper()
     if sys.platform != 'win32':
         environ_from_wrapper.pop('SHLVL')
     else:
         environ_from_wrapper.pop('PROMPT')
+        environ_from_wrapper['PATH'] = \
+            os.path.normcase(environ_from_wrapper['PATH'])
+        environ_from_wrapper['VIRTUAL_ENV'] = \
+            os.path.normcase(environ_from_wrapper['VIRTUAL_ENV'])
 
     assert environ_from_activate == environ_from_wrapper
 
@@ -68,15 +76,15 @@ def test_execute_conda_wrappers(tmpdir, monkeypatch):
                            '--offline',
                            '--clone',
                            'root',
-                           '-p', 'condaenvs/test'])
+                           '-p', 'conda envs/test'])
 
     if sys.platform != 'win32':
-        bin_dir = 'condaenvs/test/bin'
+        bin_dir = 'conda envs/test/bin'
     else:
-        bin_dir = 'condaenvs/test'
+        bin_dir = 'conda envs/test'
     create_wrappers._main([
         '-t', 'conda',
-        '--conda-env-dir', 'condaenvs/test',
+        '--conda-env-dir', 'conda envs/test',
         '--bin-dir', bin_dir,
         '--dest-dir', 'wrappers',
     ])
@@ -87,7 +95,7 @@ def test_execute_conda_wrappers(tmpdir, monkeypatch):
     environ_from_wrapper = _environ_from_wrapper()
     assert environ_from_wrapper['CONDA_DEFAULT_ENV'] == 'test'
     assert environ_from_wrapper['CONDA_ENV_PATH'] == \
-        str(tmpdir.join('condaenvs/test'))
+        str(tmpdir.join('conda envs/test'))
 
     # Remove some variables we don't care
     environ_from_activate.pop('CONDA_DEFAULT_ENV')
@@ -115,11 +123,11 @@ def test_execute_conda_wrappers(tmpdir, monkeypatch):
 def _activate_virtualenv_script():
     if sys.platform == 'win32':
         return '''@echo off
-            call virtualenvs\\test\\Scripts\\activate.bat
+            call "virtual envs\\test\\Scripts\\activate.bat"
         '''
     else:
         return '''#!/usr/bin/env bash
-            source 'virtualenvs/test/bin/activate'
+            source 'virtual envs/test/bin/activate'
         '''
 
 
@@ -127,11 +135,11 @@ def _activate_conda_script():
     if sys.platform == 'win32':
         return '''@echo off
             @for /F %%i in ('conda info --root') do @set "CONDA_ROOT=%%i"
-            call "%CONDA_ROOT%\\Scripts\\activate.bat" condaenvs\\test
+            call "%CONDA_ROOT%\\Scripts\\activate.bat" "conda envs\\test"
         '''
     else:
         return '''#!/usr/bin/env bash
-            source "$(conda info --root)/bin/activate" condaenvs/test
+            source "$(conda info --root)/bin/activate" "conda envs/test"
         '''
 
 
