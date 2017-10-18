@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name="exec-wrappers",
-    version='1.0.3',
+    version='1.1.0',
     author="Guilherme Quentel Melo",
     author_email="gqmelo@gmail.com",
     url="https://github.com/gqmelo/exec-wrappers",
@@ -24,7 +24,10 @@ setup(
     description="wrappers for running commands that need some initial setup",
     long_description=open('README.rst').read(),
     packages=['exec_wrappers'],
-    entry_points={'console_scripts': 'create-wrappers = exec_wrappers.create_wrappers:main'},
+    entry_points={
+        'console_scripts':
+            'create-wrappers = exec_wrappers.create_wrappers:main'
+    },
     package_data={'exec_wrappers': ['templates/*/*']},
     include_package_data=True,
     install_requires=[],

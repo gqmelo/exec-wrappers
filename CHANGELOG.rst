@@ -1,3 +1,16 @@
+1.1.0
+=========
+
+**Features**
+
+* Option --use-exec to create wrappers using exec on Linux and MacOS
+
+**Bug fixes**
+
+* Convert conda and virtualenv paths to absolute
+* Convert --bin-dir to absolute
+* Quote commands executed by the wrappers so the path can contain spaces
+
 1.0.3
 =========
 
