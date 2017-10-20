@@ -4,7 +4,7 @@ Contributing
 
 Here's how to set up `exec-wrappers` for local development:
 
-1. Fork the `sentry-zendesk` repo on GitHub.
+1. Fork the `exec-wrappers` repo on GitHub.
 2. Clone your fork locally and install flake8 pre-commit hook
 
 .. code-block:: bash
