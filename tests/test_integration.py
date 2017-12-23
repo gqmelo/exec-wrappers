@@ -98,6 +98,10 @@ def test_execute_conda_wrappers(tmpdir, monkeypatch):
 
     # Remove some variables we don't care
     environ_from_activate.pop('CONDA_DEFAULT_ENV')
+    # Only present on recent conda versions (>=4.4)
+    environ_from_activate.pop('CONDA_PROMPT_MODIFIER', None)
+    environ_from_activate.pop('CONDA_SHLVL', None)
+    environ_from_activate.pop('CONDA_PYTHON_EXE', None)
     if sys.platform != 'win32':
         environ_from_activate.pop('PS1', None)
         environ_from_activate.pop('SHLVL')
@@ -111,7 +115,10 @@ def test_execute_conda_wrappers(tmpdir, monkeypatch):
     environ_from_wrapper.pop('CONDA_DEFAULT_ENV')
     # Only present on old conda versions
     environ_from_wrapper.pop('CONDA_ENV_PATH')
+    # Not present on conda >=4.4)
     if sys.platform != 'win32':
+        environ_from_wrapper.pop('CONDA_PATH_BACKUP')
+        environ_from_wrapper.pop('CONDA_PS1_BACKUP')
         environ_from_wrapper.pop('SHLVL')
     else:
         environ_from_wrapper.pop('PROMPT')
