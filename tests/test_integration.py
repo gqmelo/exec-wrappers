@@ -73,7 +73,6 @@ def test_execute_conda_wrappers(tmpdir, monkeypatch):
                     'installed and added to PATH env var')
     subprocess.check_call(['conda',
                            'create',
-                           '--offline',
                            '--clone',
                            'root',
                            '-p', 'conda envs/test'])
