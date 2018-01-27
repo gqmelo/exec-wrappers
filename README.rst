@@ -19,6 +19,9 @@ exec-wrappers
     :target: https://ci.appveyor.com/project/gqmelo/exec-wrappers/branch/master
     :alt: See Build Status on AppVeyor
 
+.. image:: https://codecov.io/gh/gqmelo/exec-wrappers/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/gqmelo/exec-wrappers
+
 A command line tool to create wrappers around executable files
 
 Rationale
