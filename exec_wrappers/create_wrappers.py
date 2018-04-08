@@ -264,6 +264,10 @@ def get_wrapper_extension():
     else:
         return ''
 
+def _make_executable(path):
+    """Make the file at path executable."""
+    os.chmod(path,
+             os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 def _create_wrappers(files_to_wrap, destination_dir, run_in_template_filename,
                      template_func,
@@ -278,8 +282,7 @@ def _create_wrappers(files_to_wrap, destination_dir, run_in_template_filename,
                                        'run-in' + get_wrapper_extension())
         with open(run_in_filename, 'w') as f:
             f.write(run_in_template.replace('__COMMAND__', command))
-        os.chmod(run_in_filename,
-                 os.stat(run_in_filename).st_mode | stat.S_IXUSR)
+        _make_executable(run_in_filename)
 
     for filename in files_to_wrap:
         basename = os.path.basename(filename)
@@ -299,8 +302,7 @@ def _create_wrappers(files_to_wrap, destination_dir, run_in_template_filename,
         with open(destination_filename, 'w') as f:
             f.write(content)
 
-        os.chmod(destination_filename,
-                 os.stat(destination_filename).st_mode | stat.S_IXUSR)
+        _make_executable(destination_filename)
 
 
 def get_wrapper_full_path(destination_dir, basename):
