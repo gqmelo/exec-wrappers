@@ -1,3 +1,10 @@
+1.1.1
+=========
+
+**Bug fixes**
+
+* Set wrappers as executable for group and others
+
 1.1.0
 =========
 
