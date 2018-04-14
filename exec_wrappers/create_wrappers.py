@@ -264,10 +264,14 @@ def get_wrapper_extension():
     else:
         return ''
 
+
 def _make_executable(path):
     """Make the file at path executable."""
-    os.chmod(path,
-             os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+    os.chmod(
+        path,
+        os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+    )
+
 
 def _create_wrappers(files_to_wrap, destination_dir, run_in_template_filename,
                      template_func,
