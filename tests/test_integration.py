@@ -96,32 +96,37 @@ def test_execute_conda_wrappers(tmpdir, monkeypatch):
     assert environ_from_wrapper['CONDA_ENV_PATH'] == \
         str(tmpdir.join('conda envs/test'))
 
-    # Remove some variables we don't care
-    environ_from_activate.pop('CONDA_DEFAULT_ENV')
-    # Only present on recent conda versions (>=4.4)
-    environ_from_activate.pop('CONDA_PROMPT_MODIFIER', None)
-    environ_from_activate.pop('CONDA_SHLVL', None)
-    environ_from_activate.pop('CONDA_PYTHON_EXE', None)
-    if sys.platform != 'win32':
-        environ_from_activate.pop('PS1', None)
-        environ_from_activate.pop('SHLVL')
-    else:
-        environ_from_activate.pop('CONDA_PS1_BACKUP')
-        environ_from_activate.pop('CONDA_ROOT')
-        environ_from_activate.pop('PROMPT')
+    # Remove some variables we don't care about
+    variables_to_ignore = [
+        # It's an absolute path when activating but just the env name when
+        # using the wrapper
+        'CONDA_DEFAULT_ENV',
+        # Only present on old conda versions
+        'CONDA_ENV_PATH',
+        # Only present on recent conda versions (>=4.4)
+        'CONDA_PROMPT_MODIFIER',
+        'CONDA_SHLVL',
+        'CONDA_PYTHON_EXE',
+        # Not present on conda >=4.4
+        'CONDA_PATH_BACKUP',
+        'CONDA_PS1_BACKUP',
+        # Only present on conda >=4.5
+        'CONDA_EXE',
+    ]
 
-    # It's an absolute path when activating but just the env name when using
-    # the wrapper
-    environ_from_wrapper.pop('CONDA_DEFAULT_ENV')
-    # Only present on old conda versions
-    environ_from_wrapper.pop('CONDA_ENV_PATH')
-    # Not present on conda >=4.4)
     if sys.platform != 'win32':
-        environ_from_wrapper.pop('CONDA_PATH_BACKUP')
-        environ_from_wrapper.pop('CONDA_PS1_BACKUP')
-        environ_from_wrapper.pop('SHLVL')
+        variables_to_ignore.extend(['PS1', 'SHLVL'])
     else:
-        environ_from_wrapper.pop('PROMPT')
+        variables_to_ignore.extend([
+            'CONDA_ROOT',
+            'PROMPT',
+            # Only present on conda >=4.5
+            'PYTHONIOENCODING',
+        ])
+
+    for variable_name in variables_to_ignore:
+        environ_from_activate.pop(variable_name, None)
+        environ_from_wrapper.pop(variable_name, None)
 
     assert environ_from_activate == environ_from_wrapper
 
