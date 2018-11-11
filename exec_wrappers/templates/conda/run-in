@@ -4,6 +4,7 @@ run_activate_scripts() {
     ACTIVATE_D="$1"
     if [[ -d "$ACTIVATE_D" ]]; then
         while IFS= read -r -d '' f; do
+          # shellcheck disable=SC1090
           source "$f"
         done < <(find "${ACTIVATE_D}" -name "*.sh")
     fi
