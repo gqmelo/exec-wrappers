@@ -3,7 +3,9 @@
 run_activate_scripts() {
     ACTIVATE_D="$1"
     if [[ -d "$ACTIVATE_D" ]]; then
-        for f in $(find "$ACTIVATE_D" -name "*.sh"); do source "$f"; done
+        while IFS= read -r -d '' f; do
+          source "$f"
+        done < <(find "${ACTIVATE_D}" -name "*.sh")
     fi
 }
 
