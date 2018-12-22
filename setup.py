@@ -19,6 +19,7 @@ setup(
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
     description="wrappers for running commands that need some initial setup",
     long_description=open('README.rst').read(),
