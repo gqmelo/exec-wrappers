@@ -3,26 +3,40 @@ os: linux
 language: python
 dist: xenial
 python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"
   - "3.7"
-  - "pypy"
-  - "nightly"
 matrix:
     include:
         - os: osx
           language: generic
+          python: "3.7"
           env:
-            - TRAVIS_PYTHON_VERSION=3.5
-            - PYTHON=3.5.2
+            - PYTHON=3.7.1
+            - TOX_ENV=py37
         - language: python
-          env:
-            - TOX_ENV=coverage
+          python: "2.7"
+          env: TOX_ENV=py27
         - language: python
-          env:
-            - TOX_ENV=linting
+          python: "3.4"
+          env: TOX_ENV=py34
+        - language: python
+          python: "3.5"
+          env: TOX_ENV=py35
+        - language: python
+          python: "3.6"
+          env: TOX_ENV=py36
+        - language: python
+          python: "3.7"
+          env: TOX_ENV=py37
+        - language: python
+          python: "pypy3.5"
+          env: TOX_ENV=pypy35
+        - language: python
+          python: "nightly"
+          env: TOX_ENV=nightly
+        - language: python
+          env: TOX_ENV=coverage
+        - language: python
+          env: TOX_ENV=linting
 
 allow_failures:
   - python: "nightly"
@@ -44,7 +58,6 @@ install:
   - source ./ci_support/install_miniconda.sh
   - pip install tox
   - pip freeze
-  - if [ -z $TOX_ENV ]; then export TOX_ENV="${TRAVIS_PYTHON_VERSION/[0-9].[0-9]/py${TRAVIS_PYTHON_VERSION/.}}"; fi
 script:
   - tox -e $TOX_ENV
 before_cache:
