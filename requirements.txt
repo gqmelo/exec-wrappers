@@ -1,5 +1,6 @@
 backports.shutil_which
 flake8
+pep8-naming
 pytest
 pytest-cov
 virtualenv
