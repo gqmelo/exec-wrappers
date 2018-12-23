@@ -15,7 +15,10 @@ environment:
     - PYTHON: "C:\\Python36"
       TOX_ENV: "py36"
 
-    - PYTHON: "C:\\Python36"
+    - PYTHON: "C:\\Python37"
+      TOX_ENV: "py37"
+
+    - PYTHON: "C:\\Python37"
       TOX_ENV: "coverage"
 
 init:
