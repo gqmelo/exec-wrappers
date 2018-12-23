@@ -1,3 +1,10 @@
+1.1.2
+=========
+
+**Bug fixes**
+
+*  Fix shellcheck error SC2044: https://github.com/koalaman/shellcheck/wiki/SC2044
+
 1.1.1
 =========
 
