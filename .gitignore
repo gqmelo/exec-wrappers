@@ -70,3 +70,4 @@ target/
 
 # pyenv
 .python-version
+.pytest_cache
