@@ -174,7 +174,6 @@ def _main(raw_args):
 
 
 def get_files_to_wrap(bin_dir=None, specified_files_to_wrap=None, use_basename=False):
-    files_to_wrap = []
     if bin_dir:
         bin_dir = os.path.abspath(bin_dir)
     if specified_files_to_wrap:
