@@ -41,6 +41,7 @@ Now you can make your changes locally.
 
 .. code-block:: bash
 
+    black .
     git add .
     git commit -m "Your detailed description of your changes."
     git push origin name-of-your-bugfix-or-feature

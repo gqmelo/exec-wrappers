@@ -22,6 +22,9 @@ exec-wrappers
 .. image:: https://codecov.io/gh/gqmelo/exec-wrappers/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/gqmelo/exec-wrappers
 
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/ambv/black
+
 A command line tool to create wrappers around executable files
 
 Rationale
