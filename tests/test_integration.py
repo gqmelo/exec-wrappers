@@ -102,6 +102,13 @@ def test_execute_conda_wrappers(tmpdir, monkeypatch):
     )
 
     environ_from_activate = _environ_from_activate(_activate_conda_script(), tmpdir)
+    if sys.platform != "win32":
+        # conda 4.6 began to add a path like <conda_root_dir>/condabin, but
+        # we have no easy way to find out the root dir from the wrapper script.
+        # So let's just filter it for now.
+        path = environ_from_activate["PATH"].split(":")
+        filtered_path = [p for p in path if "/condabin" not in p]
+        environ_from_activate["PATH"] = ":".join(filtered_path)
 
     environ_from_wrapper = _environ_from_wrapper()
     assert environ_from_wrapper["CONDA_DEFAULT_ENV"] == "test"

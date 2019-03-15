@@ -1,5 +1,5 @@
 backports.shutil_which
-black
+black; python_version >= '3.6'
 flake8
 pep8-naming
 pytest
