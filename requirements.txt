@@ -1,4 +1,5 @@
 backports.shutil_which
+black
 flake8
 pep8-naming
 pytest
