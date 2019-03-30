@@ -2,6 +2,7 @@ import os
 import stat
 import subprocess
 import sys
+import textwrap
 
 import pytest
 
@@ -84,10 +85,31 @@ def test_execute_conda_wrappers(tmpdir, monkeypatch):
         ["conda", "create", "--clone", "root", "-p", "conda envs/test"]
     )
 
+    activate_scripts_path = tmpdir.join("conda envs/test/etc/conda/activate.d")
+
     if sys.platform != "win32":
         bin_dir = "conda envs/test/bin"
+        # Create a custom activate script to ensure that the wrapper runs it.
+        activate_scripts_path.join("custom_activate.sh").write(
+            textwrap.dedent(
+                """
+                export ENV_VAR_FROM_ACTIVATE='SOME_VALUE'
+                """
+            ),
+            ensure=True,
+        )
     else:
         bin_dir = "conda envs/test"
+        # Create a custom activate script to ensure that the wrapper runs it.
+        activate_scripts_path.join("custom_activate.bat").write(
+            textwrap.dedent(
+                """
+                @set "ENV_VAR_FROM_ACTIVATE=SOME_VALUE"
+                """
+            ),
+            ensure=True,
+        )
+
     create_wrappers._main(
         [
             "-t",
@@ -105,6 +127,7 @@ def test_execute_conda_wrappers(tmpdir, monkeypatch):
     environ_from_wrapper = _environ_from_wrapper()
     assert environ_from_wrapper["CONDA_DEFAULT_ENV"] == "test"
     assert environ_from_wrapper["CONDA_ENV_PATH"] == str(tmpdir.join("conda envs/test"))
+    assert environ_from_wrapper["ENV_VAR_FROM_ACTIVATE"] == "SOME_VALUE"
 
     if sys.platform != "win32":
         # conda 4.6 began to add a path like <conda_root_dir>/condabin, but
