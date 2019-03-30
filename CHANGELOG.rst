@@ -1,3 +1,10 @@
+1.1.3
+=========
+
+**Bug fixes**
+
+*  Fix activate scripts not being run `#27 <https://github.com/gqmelo/exec-wrappers/issues/27>`_
+
 1.1.2
 =========
 
