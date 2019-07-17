@@ -203,9 +203,22 @@ def _activate_conda_script():
 
 def _environ_from_wrapper():
     python_wrapper = os.path.normpath("wrappers/python") + get_wrapper_extension()
-    output = subprocess.check_output(
-        [python_wrapper, "-c", "from os import environ; print(dict(environ))"]
-    )
+    try:
+        # Return a non-zero exit code on purpose, to ensure wrapper forwards it.
+        output = subprocess.check_output(
+            [
+                python_wrapper,
+                "-c",
+                "from os import environ; print(dict(environ))"
+                "; import sys; sys.exit(42)",
+            ]
+        )
+        assert False, "Exit code not propagated (expected 42, got 0)"
+    except subprocess.CalledProcessError as e:
+        assert (
+            e.returncode == 42
+        ), "Exit code not propagated (expected 42, got {0})".format(e.returncode)
+        output = e.output
     environ_from_wrapper = eval(output)
     return environ_from_wrapper
 
