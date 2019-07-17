@@ -17,6 +17,5 @@
 )
 
 @REM Execute the given command
+@REM Nothing must be present after that line (not even a @REM), see issue #30
 __COMMAND__%*
-
-@endlocal

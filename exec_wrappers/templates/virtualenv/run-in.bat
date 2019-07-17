@@ -7,6 +7,5 @@
 @set "PATH=%VIRTUAL_ENV%\Scripts;%PATH%"
 
 @rem Execute the given command
+@rem Nothing must be present after that line (not even a @rem), see issue #30
 __COMMAND__%*
-
-@endlocal
