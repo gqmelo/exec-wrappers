@@ -157,6 +157,11 @@ def test_execute_conda_wrappers(tmpdir, monkeypatch):
         "CONDA_PS1_BACKUP",
         # Only present on conda >=4.5
         "CONDA_EXE",
+        # Only present on conda >=4.6.9
+        # Those variables seem to be used for dev mode only
+        # https://github.com/conda/conda/pull/8435/commits/9a4589a1fabc66c122fb0c20fa1f3aa2c8b1758b
+        "_CE_CONDA",
+        "_CE_M",
     ]
 
     if sys.platform != "win32":
