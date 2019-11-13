@@ -1,3 +1,10 @@
+1.1.4
+=========
+
+**Bug fixes**
+
+* Propagate exit code on Windows
+
 1.1.3
 =========
 
