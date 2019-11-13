@@ -34,7 +34,7 @@ Now you can make your changes locally.
 
 .. code-block:: bash
 
-    py.test tests
+    pytest tests
 
 
 6. Commit your changes and push your branch to GitHub
@@ -55,11 +55,11 @@ To run a specific test:
 
 .. code-block:: bash
 
-    py.test tests -k test_name
+    pytest tests -k test_name
 
 Sometimes is very useful to see a coverage report to check if you are forgetting
 to test something. To generate an html report:
 
 .. code-block:: bash
 
-    py.test --cov exec_wrappers --cov-config .coveragerc --cov-report html tests
+    pytest --cov exec_wrappers --cov-config .coveragerc --cov-report html tests
